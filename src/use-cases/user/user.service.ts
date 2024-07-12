@@ -52,10 +52,9 @@ export class UserService {
 
         if (!isMatch) {
             // throw new UnauthorizedException('Invalid credentials');
-            return {
-                message: 'Credencias inválidas',
-                status: false
-            }
+            throw new UnauthorizedException(
+                'Credenciais inválidas',
+            );
         }
 
         const payload = {
@@ -64,6 +63,10 @@ export class UserService {
             email: user.email,
             role: user.role,
         };
+
+        const today = new Date();
+
+        today.setDate(today.getDate() + Number(jwt.auth.expiresIn))
 
         const token = await this.jwtService.signAsync(payload, {
             secret: jwt.auth.secret,
@@ -78,6 +81,7 @@ export class UserService {
                 email: user.email,
                 role: user.role,
             },
+            expires_in: today
         };
 
         return {
