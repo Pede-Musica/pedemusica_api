@@ -1,8 +1,11 @@
-import { Body, Controller, Get, HttpCode, Post, Query, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Query, UnauthorizedException } from '@nestjs/common';
 import { Public } from 'src/decorators/auth-guard.decorator';
 import { UserCreateDTO } from './dto/user-create.dto';
 import { AuthDTO } from './dto/auth.dto';
 import { UserService } from './user.service';
+import { User } from 'src/decorators/user.decorator';
+import { UserPaginateDTO } from './dto/user-paginate.dto';
+import { FindUserByIdDTO } from './dto/find-user-by-id.dto';
 
 @Controller('user')
 export class UserController {
@@ -10,11 +13,6 @@ export class UserController {
     constructor(
         private readonly userService: UserService
     ) {}
-
-    @Get('/create')
-    async create(@Query() data: UserCreateDTO) {
-
-    }
 
     @Public()
     @Post('/auth')
@@ -24,6 +22,26 @@ export class UserController {
         }
 
         return await this.userService.authenticate(data);
+    }
+
+    @Post('/create')
+    async create(@Body() data: UserCreateDTO,  @User() user_id: string) {
+        return await this.userService.create(data, user_id)
+    }
+
+    @Get('/paginate')
+    async paginate(@Query() params: UserPaginateDTO) {
+        return await this.userService.paginate(params)
+    }
+
+    @Get('/detail/:id')
+    async detail(@Param() data: FindUserByIdDTO) {
+        return await this.userService.detail(data)
+    }
+
+    @Post('/update')
+    async update(@Body() data: UserCreateDTO,  @User() user_id: string) {
+        return await this.userService.update(data, user_id)
     }
 
 }

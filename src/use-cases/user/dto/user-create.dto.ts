@@ -1,6 +1,10 @@
-import { IsEmail, IsInt, IsNotEmpty, IsString } from '@nestjs/class-validator';
+import { IsBoolean, IsEmail, IsInt, IsNotEmpty, IsOptional, IsString } from '@nestjs/class-validator';
 
 export class UserCreateDTO {
+    @IsOptional()
+    @IsString()
+    id: string;
+
     @IsNotEmpty()
     @IsString()
     name: string;
@@ -10,6 +14,10 @@ export class UserCreateDTO {
     email: string;
 
     @IsNotEmpty()
-    @IsInt()
-    type: number;
+    @IsBoolean()
+    isActive: boolean;
+
+    @IsNotEmpty()
+    @IsString()
+    position: string;
 }

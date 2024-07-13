@@ -35,7 +35,7 @@ export async function userSeeder() {
                     name: user.name,
                     email: user.email,
                     password: hashedPassword,
-                    role: '*',
+                    position: '*',
                 },
             });
         }
