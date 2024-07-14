@@ -52,3 +52,17 @@ model NewUser {
 
   @@map("new_user")
 }
+
+model Producer {
+  id          String  @id @unique @default(uuid())
+  name        String  @db.VarChar(255)
+  email       String  @unique
+  isActive    Boolean @default(true)
+  address     String  @db.VarChar(255)
+  phone       Int
+
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
+
+  @@map("producers")
+}

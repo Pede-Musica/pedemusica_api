@@ -6,6 +6,7 @@ import { UserService } from './user.service';
 import { User } from 'src/decorators/user.decorator';
 import { UserPaginateDTO } from './dto/user-paginate.dto';
 import { FindUserByIdDTO } from './dto/find-user-by-id.dto';
+import { UserSetPasswordDTO } from './dto/user-set-password';
 
 @Controller('user')
 export class UserController {
@@ -42,6 +43,12 @@ export class UserController {
     @Post('/update')
     async update(@Body() data: UserCreateDTO,  @User() user_id: string) {
         return await this.userService.update(data, user_id)
+    }
+
+    @Public()
+    @Post('/set-password')
+    async setPassword(@Body() data: UserSetPasswordDTO) {
+        return await this.userService.setPassword(data)
     }
 
 }

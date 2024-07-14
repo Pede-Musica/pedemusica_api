@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/infra/database/prisma.service';
 import { AuthDTO } from './dto/auth.dto';
@@ -10,6 +10,7 @@ import { Prisma } from '@prisma/client';
 import { FindUserByIdDTO } from './dto/find-user-by-id.dto';
 import { UserDTO } from './dto/user.dto';
 import { MailService } from 'src/external/mailer/mail.service';
+import { UserSetPasswordDTO } from './dto/user-set-password';
 
 
 @Injectable()
@@ -129,25 +130,24 @@ export class UserService {
             email: user.email,
         };
 
-        /* const token = await this.jwtService.signAsync(payload, {
+        const token = await this.jwtService.signAsync(payload, {
             secret: jwt.create_account.secret,
             expiresIn: jwt.create_account.expiresIn,
         });
-
-        console.log(token)
 
         await this.prismaService.newUser.create({
             data: {
                 token: token,
                 user_id: user.id,
             },
-        }); */
+        });
 
         const email = {
             to: user.email,
             subject: 'Bem vindo ao CooperFlow',
             text: `Olá ${user.name}! Este é um email para efetuar o primeiro acesso.`,
             name: user.name,
+            token: token
         }
 
         await this._mailService.createAccount(email);
@@ -286,6 +286,52 @@ export class UserService {
             message: 'Usuário atualizado com sucesso',
             type: 'success'
         };
+    }
+
+    async setPassword(data: UserSetPasswordDTO) {
+
+        const user = await this.prismaService.user.findUnique({
+            where: {
+                email: data.email
+            },
+        })
+
+        if (!user) {
+            throw new NotFoundException('Usuário não encontrado');
+        }
+
+        const token = await this.prismaService.newUser.findUnique({
+            where: {
+                token: data.token,
+            },
+        });
+
+        if (!token || (token && token.user_id !== user.id)) {
+            throw new UnauthorizedException('Invalid token');
+        }
+
+        const password = await bcrypt.hash(data.password, 10);
+
+        await this.prismaService.user.update({
+            where: {
+                email: data.email,
+            },
+            data: {
+                password,
+            },
+        });
+
+        await this.prismaService.newUser.deleteMany({
+            where: {
+                user_id: user.id,
+            },
+        });
+
+        const response = {
+            message: 'Senha alterada com sucesso',
+        };
+
+        return response;
     }
 
 }
