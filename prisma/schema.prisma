@@ -59,10 +59,104 @@ model Producer {
   email       String  @unique
   isActive    Boolean @default(true)
   address     String  @db.VarChar(255)
-  phone       Int
+  phone       String
+  cad_pro     String?  @db.VarChar(255)
+  ggn         String?  @db.VarChar(255)
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
   @@map("producers")
+}
+
+model Customer {
+  id          String  @id @unique @default(uuid())
+  name        String  @db.VarChar(255)
+  email       String  @unique
+  isActive    Boolean @default(true)
+  address     String  @db.VarChar(255)
+  phone       String
+  type        Int     @default(1)
+  cpf_cnpj    String  @db.VarChar(255)
+
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
+
+  @@map("customers")
+}
+
+model Product {
+  id          String  @id @unique @default(uuid())
+  name        String  @db.VarChar(255)
+  isActive    Boolean @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
+
+  ProductType       ProductType[]
+  ProductSize       ProductSize[]
+
+  @@map("products")
+}
+
+model ProductType {
+  id          String  @id @unique @default(uuid())
+  name        String  @db.VarChar(255)
+  isActive    Boolean @default(true)
+
+  product_id String?
+  Product   Product?   @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("product_types")
+}
+
+model ProductSize {
+  id          String  @id @unique @default(uuid())
+  name        String  @db.VarChar(255)
+  isActive    Boolean @default(true)
+
+  product_id String?
+  Product   Product?   @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("product_sizes")
+}
+
+model Location {
+  id          String  @id @unique @default(uuid())
+  name        String  @db.VarChar(255)
+  isActive    Boolean @default(true)
+  description String? @db.VarChar(255)
+
+  sector_id String?
+  Sector   Sector?   @relation(fields: [sector_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
+
+  @@map("locations")
+}
+
+model Sector {
+  id          String  @id @unique @default(uuid())
+  name        String  @db.VarChar(255) @unique
+
+  Location       Location[]
+
+  @@map("sectors")
+}
+
+model Material {
+  id            String  @id @unique @default(uuid())
+  name          String  @db.VarChar(255)
+  isActive      Boolean @default(true)
+  volume        Int @db.Integer() @default(0)
+  volume_type   String
+  in_stock      Int  @db.Integer() @default(0)
+  traceable     Boolean @default(false)
+  description   String? @db.Text()
+
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
+
+  @@map("materials")
 }

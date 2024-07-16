@@ -5,8 +5,14 @@ import { UserModule } from './use-cases/user/user.module';
 import { AuthModule } from './use-cases/user/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { UserController } from './use-cases/user/user.controller';
+import { ProducerModule } from './use-cases/producer/producer.module';
+import { CustomerModule } from './use-cases/customer/customer.module';
+import { ProductModule } from './use-cases/product/product.module';
+import { LocationModule } from './use-cases/location/location.module';
+import { MaterialModule } from './use-cases/material/material.module';
 @Module({
   imports: [
+    AuthModule,
     JwtModule.register({
       global: true,
     }),
@@ -22,7 +28,11 @@ import { UserController } from './use-cases/user/user.controller';
       }
     }),
     UserModule,
-    AuthModule
+    ProducerModule,
+    CustomerModule,
+    ProductModule,
+    LocationModule,
+    MaterialModule
   ],
   controllers: [],
   providers: [MailService],

@@ -11,6 +11,7 @@ import { FindUserByIdDTO } from './dto/find-user-by-id.dto';
 import { UserDTO } from './dto/user.dto';
 import { MailService } from 'src/external/mailer/mail.service';
 import { UserSetPasswordDTO } from './dto/user-set-password';
+import { ValidateToken } from './dto/validate-token.dto';
 
 
 @Injectable()
@@ -332,6 +333,39 @@ export class UserService {
         };
 
         return response;
+    }
+
+    async validateToken(data: ValidateToken) {
+        try {
+            const validateToken = await this.jwtService.verifyAsync(data.token, {
+                secret: jwt.create_account.secret,
+            });
+
+            if (!validateToken) {
+                throw new UnauthorizedException('Expired token');
+            }
+
+            const tokenAlreadyExists = await this.prismaService.newUser.findFirst({
+                where: {
+                    token: data.token,
+                },
+            });
+
+            if (!tokenAlreadyExists) {
+                throw new UnauthorizedException('Invalid token');
+            }
+
+            const decode = await this.jwtService.decode(data.token);
+
+            const response = {
+                name: decode['name'],
+                email: decode['email'],
+            };
+
+            return response;
+        } catch (error) {
+            throw new UnauthorizedException(error.message);
+        }
     }
 
 }
