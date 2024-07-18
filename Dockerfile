@@ -1,7 +1,5 @@
 FROM node:lts-alpine3.19 as builder
 
-WORKDIR /usr/src
-
 WORKDIR /usr/src/app
 
 COPY package*.json ./
@@ -14,4 +12,4 @@ RUN npm run build
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start:prod"]
+CMD [ "node", "dist/main.js" ]
