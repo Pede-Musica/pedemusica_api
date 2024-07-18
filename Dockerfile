@@ -9,6 +9,7 @@ RUN npm install
 COPY . .
 
 RUN npx prisma generate
+RUN npm run data-migration:seeder-index
 
 RUN npm run build
 
