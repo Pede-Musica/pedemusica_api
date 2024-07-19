@@ -13,6 +13,6 @@ RUN npm run data-migration:seeder-index
 
 RUN npm run build
 
-EXPOSE 80
+EXPOSE 3000
 
 CMD [ "node", "dist/main.js" ]
