@@ -58,4 +58,10 @@ export class UserController {
         return await this.userService.validateToken(data)
     }
 
+    @Public()
+    @Get('/test')
+    async testAPI() {
+        return 'API is working'
+    }
+
 }
