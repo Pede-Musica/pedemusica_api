@@ -31,7 +31,7 @@ model User {
 }
 
 model LogSystem {
-  id        String   @id @unique
+  id        String @id @unique @default(uuid())
 
   User   User?   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   user_id String?
@@ -192,18 +192,20 @@ model Register {
 model Enter {
   id            String  @id @unique @default(uuid())
 
-  register_id Int? @unique
-  Register   Register?   @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  register_id Int @unique
+  Register   Register   @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  user_id String? @unique
-  User   User?   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user_id String @unique
+  User   User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  producer_id String? @unique
-  Producer   Producer?   @relation(fields: [producer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  producer_id String @unique
+  Producer   Producer   @relation(fields: [producer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   
   field String
   batch String
   enter_at DateTime @default(now()) @db.Timestamp
+
+  observation   String? @db.Text()
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
@@ -214,11 +216,14 @@ model Enter {
 model Exit {
   id            String  @id @unique @default(uuid())
 
-  register_id Int? @unique
-  Register   Register?   @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  register_id Int @unique
+  Register   Register   @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  user_id String? @unique
-  User   User?   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user_id String @unique
+  User   User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  exit_at DateTime @default(now()) @db.Timestamp
+  observation   String? @db.Text()
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
@@ -229,14 +234,19 @@ model Exit {
 model Transform {
   id            String  @id @unique @default(uuid())
 
-  register_id Int? @unique
-  Register   Register?   @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  register_id Int @unique
+  Register   Register   @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  user_id String? @unique
-  User   User?   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user_id String @unique
+  User   User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  trasnform_at DateTime @default(now()) @db.Timestamp
+  observation   String? @db.Text()
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
   @@map("transforms")
 }
+
+

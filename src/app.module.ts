@@ -10,6 +10,7 @@ import { CustomerModule } from './use-cases/customer/customer.module';
 import { ProductModule } from './use-cases/product/product.module';
 import { LocationModule } from './use-cases/location/location.module';
 import { MaterialModule } from './use-cases/material/material.module';
+import { LogModule } from './use-cases/log/log.module';
 @Module({
   imports: [
     AuthModule,
@@ -32,7 +33,8 @@ import { MaterialModule } from './use-cases/material/material.module';
     CustomerModule,
     ProductModule,
     LocationModule,
-    MaterialModule
+    MaterialModule,
+    LogModule
   ],
   controllers: [],
   providers: [MailService],

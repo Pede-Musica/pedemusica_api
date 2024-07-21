@@ -21,7 +21,9 @@ export class ProducerService {
                     email: data.email,
                     isActive: data.isActive,
                     address: data.address,
-                    phone: data.phone
+                    phone: data.phone,
+                    cad_pro: data.cad_pro,
+                    ggn: data.ggn
                 }
             })
 
@@ -60,6 +62,8 @@ export class ProducerService {
                 isActive: true,
                 address: true,
                 phone: true,
+                cad_pro: true,
+                ggn: true,
                 created_at: true,
                 updated_at: true,
             },
@@ -98,6 +102,8 @@ export class ProducerService {
                 isActive: true,
                 address: true,
                 phone: true,
+                cad_pro: true,
+                ggn: true,
                 created_at: true,
                 updated_at: true,
             },
@@ -133,7 +139,9 @@ export class ProducerService {
                 email: data.email,
                 isActive: data.isActive,
                 address: data.address,
-                phone: data.phone
+                phone: data.phone,
+                cad_pro: data.cad_pro,
+                ggn: data.ggn
             }
         });
 

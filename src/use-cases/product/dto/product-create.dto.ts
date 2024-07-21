@@ -1,4 +1,4 @@
-import { IsBoolean, IsEmail, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString } from '@nestjs/class-validator';
+import { IsArray, IsBoolean, IsEmail, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString } from '@nestjs/class-validator';
 
 export class ProductCreateDTO {
     @IsOptional()
@@ -12,4 +12,12 @@ export class ProductCreateDTO {
     @IsNotEmpty()
     @IsBoolean()
     isActive: boolean;
+
+    @IsOptional()
+    @IsArray()
+    types: Array<{ name: string, isActive: boolean }>;
+
+    @IsOptional()
+    @IsArray()
+    sizes:  Array<{ name: string, isActive: boolean }>;
 }

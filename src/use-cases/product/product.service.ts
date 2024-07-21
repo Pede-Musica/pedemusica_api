@@ -5,12 +5,15 @@ import { Prisma } from '@prisma/client';
 import { ProducerPaginateDTO } from '../producer/dto/producer-paginate.dto';
 import { ProductCreateDTO } from './dto/product-create.dto';
 import { ProducerDetailDTO } from '../producer/dto/producer-detail.dto';
+import { LogService } from '../log/log.service';
+import { LogType } from 'src/shared/constants/log.enum';
 
 @Injectable()
 export class ProductService {
 
     constructor(
-        public prismaService: PrismaService
+        public prismaService: PrismaService,
+        private _logService: LogService
     ) { }
 
     async paginate(params: ProducerPaginateDTO) {
@@ -38,6 +41,9 @@ export class ProductService {
                 isActive: true,
                 created_at: true,
                 updated_at: true,
+
+                ProductSize: true,
+                ProductType: true,
             },
             where: {
                 name: {
@@ -65,12 +71,49 @@ export class ProductService {
     async create(data: ProductCreateDTO, user_id: string) {
 
         try {
-            const customer = await this.prismaService.product.create({
+
+            const types = data.types;
+            const sizes = data.sizes;
+
+            const product = await this.prismaService.product.create({
                 data: {
                     name: data.name,
                     isActive: data.isActive,
                 }
             })
+
+            await Promise.all(
+                types.map(async (type) => {
+                    await this.prismaService.productType.create({
+                        data: {
+                            name: type.name,
+                            isActive: type.isActive,
+                            product_id: product.id
+                        }
+                    })
+                })
+            )
+
+            await Promise.all(
+                sizes.map(async (size) => {
+                    await this.prismaService.productSize.create({
+                        data: {
+                            name: size.name,
+                            isActive: size.isActive,
+                            product_id: product.id
+                        }
+                    })
+                })
+            )
+
+            await this._logService.log({
+                user_id: user_id,
+                type: LogType.producer,
+                action: 'Atualizou um produto.',
+                before: null,
+                after: null
+            })
+
 
             return {
                 message: 'Produto criado com sucesso',
@@ -81,7 +124,7 @@ export class ProductService {
         }
     }
 
-    async detail(data: ProducerDetailDTO): Promise<ProductCreateDTO> {
+    async detail(data: ProducerDetailDTO): Promise<any> {
         const customer = await this.prismaService.product.findUnique({
             where: {
                 id: data.id,
@@ -92,6 +135,21 @@ export class ProductService {
                 isActive: true,
                 created_at: true,
                 updated_at: true,
+
+                ProductSize: {
+                    select: {
+                        id: true,
+                        name: true,
+                        isActive: true
+                    }
+                },
+                ProductType: {
+                    select: {
+                        id: true,
+                        name: true,
+                        isActive: true
+                    }
+                },
             },
         });
 
@@ -104,9 +162,13 @@ export class ProductService {
     }
 
     async update(data: ProductCreateDTO, user_id: string) {
+
+        const types = data.types;
+        const sizes = data.sizes;
+
         const update = await this.prismaService.product.findUnique({
             where: {
-                id: user_id,
+                id: data.id,
             },
         });
 
@@ -125,6 +187,50 @@ export class ProductService {
                 isActive: data.isActive,
             }
         });
+
+        await this.prismaService.productType.deleteMany({
+            where: {
+                product_id: data.id,
+            }
+        })
+
+        await this.prismaService.productSize.deleteMany({
+            where: {
+                product_id: data.id,
+            }
+        })
+
+        await Promise.all(
+            types.map(async (type) => {
+                await this.prismaService.productType.create({
+                    data: {
+                        name: type.name,
+                        isActive: type.isActive,
+                        product_id: product.id
+                    }
+                })
+            })
+        )
+
+        await Promise.all(
+            sizes.map(async (size) => {
+                await this.prismaService.productSize.create({
+                    data: {
+                        name: size.name,
+                        isActive: size.isActive,
+                        product_id: product.id
+                    }
+                })
+            })
+        )
+
+        await this._logService.log({
+            user_id: user_id,
+            type: LogType.producer,
+            action: 'Atualizou um produto.',
+            before: null,
+            after: null
+        })
 
         return {
             message: 'Produto atualizado com sucesso',

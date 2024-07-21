@@ -24,4 +24,12 @@ export class ProducerCreateDTO {
     @IsNotEmpty()
     @IsString()
     phone: string;
+
+    @IsNotEmpty()
+    @IsString()
+    cad_pro: string;
+
+    @IsNotEmpty()
+    @IsString()
+    ggn: string;
 }
