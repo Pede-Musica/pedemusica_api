@@ -11,6 +11,7 @@ import { ProductModule } from './use-cases/product/product.module';
 import { LocationModule } from './use-cases/location/location.module';
 import { MaterialModule } from './use-cases/material/material.module';
 import { LogModule } from './use-cases/log/log.module';
+import { SectorModule } from './use-cases/sector/sector.module';
 @Module({
   imports: [
     AuthModule,
@@ -34,7 +35,8 @@ import { LogModule } from './use-cases/log/log.module';
     ProductModule,
     LocationModule,
     MaterialModule,
-    LogModule
+    LogModule,
+    SectorModule
   ],
   controllers: [],
   providers: [MailService],

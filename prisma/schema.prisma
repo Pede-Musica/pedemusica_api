@@ -144,8 +144,11 @@ model Location {
 model Sector {
   id          String  @id @unique @default(uuid())
   name        String  @db.VarChar(255) @unique
+  isActive      Boolean @default(true)
 
   Location       Location[]
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
 
   @@map("sectors")
 }
