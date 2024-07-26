@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+/* import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/infra/database/prisma.service';
 import { ProducerCreateDTO } from './dto/producer.dto';
 import { ProducerPaginateDTO } from './dto/producer-paginate.dto';
@@ -151,3 +151,4 @@ export class ProducerService {
         };
     }
 }
+ */

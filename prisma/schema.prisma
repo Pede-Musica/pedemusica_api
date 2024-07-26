@@ -12,12 +12,13 @@ datasource db {
 
 model User {
   id          String  @id @unique @default(uuid())
-  name        String  @db.VarChar(255)
-  email       String  @unique
   isActive    Boolean @default(true)
+  user        String? @unique
   password    String?
-  position    String  @db.VarChar(255)
 
+  Person   Person?   @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  person_id String?  @unique
+  
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
@@ -30,6 +31,60 @@ model User {
   @@map("users")
 }
 
+
+model Person {
+
+  id          String   @id @unique @default(uuid())
+  name        String   @db.VarChar(255)
+  email       String   @unique
+  position    String?   @db.VarChar(255)
+  phone       String
+  phone2      String?
+  address     String?   @db.VarChar(255)
+  type        Int      @default(1)
+  cpf_cnpj    String?  @db.VarChar(255)
+  sysAdmin    Boolean  @default(false)
+  isUser      Boolean  @default(false)
+  isCustomer    Boolean  @default(false)
+  isProducer    Boolean  @default(false)
+
+  created_at DateTime  @default(now()) @db.Timestamp
+  updated_at DateTime  @updatedAt @db.Timestamp
+
+  Customer    Customer?
+  User        User?
+  Producer    Producer?
+
+  @@map("persons")
+}
+
+model Producer {
+  id          String  @id @unique @default(uuid())
+  cad_pro     String?  @db.VarChar(255)
+  ggn         String?  @db.VarChar(255)
+
+  Person   Person?   @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  person_id String?  @unique
+
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
+
+  Enter   Enter[]
+
+  @@map("producers")
+}
+
+model Customer {
+  id          String  @id @unique @default(uuid())
+
+  Person   Person?   @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  person_id String?  @unique
+
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
+
+  @@map("customers")
+}
 model LogSystem {
   id        String @id @unique @default(uuid())
 
@@ -56,39 +111,7 @@ model NewUser {
   @@map("new_user")
 }
 
-model Producer {
-  id          String  @id @unique @default(uuid())
-  name        String  @db.VarChar(255)
-  email       String  @unique
-  isActive    Boolean @default(true)
-  address     String  @db.VarChar(255)
-  phone       String
-  cad_pro     String?  @db.VarChar(255)
-  ggn         String?  @db.VarChar(255)
 
-  created_at DateTime @default(now()) @db.Timestamp
-  updated_at DateTime @updatedAt @db.Timestamp
-
-  Enter   Enter[]
-
-  @@map("producers")
-}
-
-model Customer {
-  id          String  @id @unique @default(uuid())
-  name        String  @db.VarChar(255)
-  email       String  @unique
-  isActive    Boolean @default(true)
-  address     String  @db.VarChar(255)
-  phone       String
-  type        Int     @default(1)
-  cpf_cnpj    String  @db.VarChar(255)
-
-  created_at DateTime @default(now()) @db.Timestamp
-  updated_at DateTime @updatedAt @db.Timestamp
-
-  @@map("customers")
-}
 
 model Product {
   id          String  @id @unique @default(uuid())

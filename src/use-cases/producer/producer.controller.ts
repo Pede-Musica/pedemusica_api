@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+/* import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ProducerCreateDTO } from './dto/producer.dto';
 import { User } from 'src/decorators/user.decorator';
 import { ProducerService } from './producer.service';
@@ -32,3 +32,4 @@ export class ProducerController {
         return await this.producerService.update(data, user_id)
     }
 }
+ */

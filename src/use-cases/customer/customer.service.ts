@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+/* import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/infra/database/prisma.service';
 import { CustomerPaginateDTO } from './dto/customer-paginate.dto';
 import { Prisma } from '@prisma/client';
@@ -150,3 +150,4 @@ export class CustomerService {
         };
     }
 }
+ */

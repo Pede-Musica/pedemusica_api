@@ -11,9 +11,24 @@ const prisma = new PrismaClient({
 export async function userSeeder() {
     const users = [
         {
-            name: 'Felipe Yuiti Sasaki',
-            email: 'felipe.sasaki95@gmail.com',
-            type: 1,
+            person: {
+                name: 'Felipe Yuiti Sasaki',
+                email: 'felipe.sasaki95@gmail.com',
+                position: 'System Administrator',
+                phone: '43999001381',
+                phone2: '',
+                address: '',
+                type: 1,
+                cpf_cnpj: '',
+                isCostumer: false,
+                isProducer: false,
+                isUser: true,
+                sysAdmin: true
+            },
+            user: {
+                isActive: true,
+                password: '123456',
+            }
         },
     ];
 
@@ -21,23 +36,41 @@ export async function userSeeder() {
         for (const user of users) {
             const userExists = await tx.user.findUnique({
                 where: {
-                    email: user.email,
+                    user: user.person.email,
                 },
             });
 
             if (userExists) {
                 continue;
             }
-            const hashedPassword = await bcrypt.hash('123456', 10);
 
-            await tx.user.create({
+            const hashedPassword = await bcrypt.hash(user.user.password, 10);
+
+            const person = await tx.person.create({
                 data: {
-                    name: user.name,
-                    email: user.email,
-                    password: hashedPassword,
-                    position: '*',
+                    name: user.person.name,
+                    email: user.person.email,
+                    position: user.person.position,
+                    phone: user.person.phone,
+                    phone2: user.person.phone2,
+                    address: user.person.address,
+                    type: user.person.type,
+                    cpf_cnpj: user.person.cpf_cnpj,
+                    isCustomer: user.person.isCostumer,
+                    isProducer: user.person.isProducer,
+                    isUser: user.person.isUser,
+                    sysAdmin: user.person.sysAdmin,
                 },
             });
+
+            const newUser = await tx.user.create({
+                data: {
+                    isActive: true,
+                    password: hashedPassword,
+                    person_id: person.id,
+                    user: user.person.email
+                }
+            })
         }
     });
 

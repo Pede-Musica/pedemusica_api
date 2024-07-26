@@ -26,7 +26,7 @@ export class UserController {
         return await this.userService.authenticate(data);
     }
 
-    @Post('/create')
+    /* @Post('/create')
     async create(@Body() data: UserCreateDTO,  @User() user_id: string) {
         return await this.userService.create(data, user_id)
     }
@@ -44,7 +44,7 @@ export class UserController {
     @Post('/update')
     async update(@Body() data: UserCreateDTO,  @User() user_id: string) {
         return await this.userService.update(data, user_id)
-    }
+    } */
 
     @Public()
     @Post('/set-password')

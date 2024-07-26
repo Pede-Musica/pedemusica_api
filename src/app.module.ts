@@ -5,13 +5,14 @@ import { UserModule } from './use-cases/user/user.module';
 import { AuthModule } from './use-cases/user/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { UserController } from './use-cases/user/user.controller';
-import { ProducerModule } from './use-cases/producer/producer.module';
-import { CustomerModule } from './use-cases/customer/customer.module';
+// import { ProducerModule } from './use-cases/producer/producer.module';
+// import { CustomerModule } from './use-cases/customer/customer.module';
 import { ProductModule } from './use-cases/product/product.module';
 import { LocationModule } from './use-cases/location/location.module';
 import { MaterialModule } from './use-cases/material/material.module';
 import { LogModule } from './use-cases/log/log.module';
 import { SectorModule } from './use-cases/sector/sector.module';
+import { PersonModule } from './use-cases/person/person.module';
 @Module({
   imports: [
     AuthModule,
@@ -30,13 +31,14 @@ import { SectorModule } from './use-cases/sector/sector.module';
       }
     }),
     UserModule,
-    ProducerModule,
-    CustomerModule,
+    // ProducerModule,
+    // CustomerModule,
     ProductModule,
     LocationModule,
     MaterialModule,
     LogModule,
-    SectorModule
+    SectorModule,
+    PersonModule
   ],
   controllers: [],
   providers: [MailService],

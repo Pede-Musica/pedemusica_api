@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "persons" ADD COLUMN     "isCustomer" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "isProducer" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "isUser" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "sysAdmin" BOOLEAN NOT NULL DEFAULT false;

@@ -26,7 +26,7 @@ export class UserService {
     async exists(email: string) {
         const user = await this.prismaService.user.findUnique({
             where: {
-                email,
+                user: email,
             },
         });
 
@@ -38,16 +38,15 @@ export class UserService {
         const email = data.email;
 
         const user = await this.prismaService.user.findUnique({
-            where: { email },
+            where: { user:  email},
             select: {
                 id: true,
-                name: true,
-                email: true,
-                position: true,
+                user: true,
+                person_id: true,
                 isActive: true,
                 password: true,
                 created_at: true,
-                updated_at: true,
+                updated_at: true
             },
         });
 
@@ -72,11 +71,16 @@ export class UserService {
             );
         }
 
+        const person = await this.prismaService.person.findUnique({
+            where: {
+                id: user.person_id
+            }
+        })
+
         const payload = {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            position: user.position,
+            name: person.name,
+            email: person.email,
+            position: person.position,
         };
 
         const today = new Date();
@@ -92,9 +96,9 @@ export class UserService {
             access_token: token,
             user: {
                 id: user.id,
-                name: user.name,
-                email: user.email,
-                position: user.position,
+                name: person.name,
+                email: person.email,
+                position: person.position,
             },
             expires_in: today
         };
@@ -107,7 +111,7 @@ export class UserService {
     }
 
 
-    async create(data: UserCreateDTO, user_id: string) {
+    /* async create(data: UserCreateDTO, user_id: string) {
         const userCreatedUser = await this.prismaService.user.findUnique({
             where: { email: data.email },
         });
@@ -167,9 +171,9 @@ export class UserService {
             submessage: `Um e-mail de acesso foi enviado para ${user.email}`,
             type: 'success'
         };
-    }
+    } */
 
-    async paginate(params: UserPaginateDTO) {
+    /* async paginate(params: UserPaginateDTO) {
         const order: Prisma.SortOrder =
             (params.order as unknown as Prisma.SortOrder) || 'asc';
         const page = params.page ? +params.page : 1;
@@ -231,9 +235,9 @@ export class UserService {
         };
 
         return response;
-    }
+    } */
 
-    async detail(data: FindUserByIdDTO): Promise<UserDTO> {
+    /* async detail(data: FindUserByIdDTO): Promise<UserDTO> {
         const user = await this.prismaService.user.findUnique({
             where: {
                 id: data.id,
@@ -256,9 +260,9 @@ export class UserService {
         } else {
             throw new ConflictException('Usuário não encontrado')
         }
-    }
+    } */
 
-    async update(data: UserCreateDTO, user_id: string) {
+    /* async update(data: UserCreateDTO, user_id: string) {
         const userUpdated = await this.prismaService.user.findUnique({
             where: {
                 id: user_id,
@@ -287,13 +291,13 @@ export class UserService {
             message: 'Usuário atualizado com sucesso',
             type: 'success'
         };
-    }
+    } */
 
     async setPassword(data: UserSetPasswordDTO) {
 
         const user = await this.prismaService.user.findUnique({
             where: {
-                email: data.email
+                user: data.email
             },
         })
 
@@ -315,7 +319,7 @@ export class UserService {
 
         await this.prismaService.user.update({
             where: {
-                email: data.email,
+                user: data.email,
             },
             data: {
                 password,

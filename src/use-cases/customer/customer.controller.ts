@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+/* import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { CustomerPaginateDTO } from './dto/customer-paginate.dto';
 import { User } from 'src/decorators/user.decorator';
@@ -32,3 +32,4 @@ export class CustomerController {
         return await this.customerService.update(data, user_id)
     }
 }
+ */

@@ -1,7 +1,0 @@
--- AlterTable
-ALTER TABLE "exits" ADD COLUMN     "exit_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-ADD COLUMN     "observation" TEXT;
-
--- AlterTable
-ALTER TABLE "transforms" ADD COLUMN     "observation" TEXT,
-ADD COLUMN     "trasnform_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
