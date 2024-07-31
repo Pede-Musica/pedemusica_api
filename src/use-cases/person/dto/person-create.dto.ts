@@ -52,4 +52,10 @@ export class PersonCreateDTO {
     @IsNotEmpty()
     @IsBoolean()
     sysAdmin: boolean
+
+    @IsOptional()
+    user: any
+
+    @IsOptional()
+    producer: any
 }

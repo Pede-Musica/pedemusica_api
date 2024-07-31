@@ -1,13 +1,19 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/infra/database/prisma.service';
-import { ProducerCreateDTO } from '../producer/dto/producer.dto';
 import { Prisma } from '@prisma/client';
 import { ProducerPaginateDTO } from '../producer/dto/producer-paginate.dto';
-import { ProducerDetailDTO } from '../producer/dto/producer-detail.dto';
 import { LogService } from '../log/log.service';
 import { LogType } from 'src/shared/constants/log.enum';
 import { PersonCreateDTO } from './dto/person-create.dto';
 import { PersonDetailDTO } from './dto/person-detail.dto';
+import { JwtService } from '@nestjs/jwt';
+import { MailService } from 'src/external/mailer/mail.service';
+import { jwt } from '../../configs/env';
+import { UserService } from '../user/user.service';
+import { ProducerService } from '../producer/producer.service';
+import { PersonPaginateDTO } from './dto/person-paginate.dto';
+import { BooleanHandlerService } from 'src/shared/handlers/boolean.handler';
+
 
 @Injectable()
 export class PersonService {
@@ -15,26 +21,24 @@ export class PersonService {
 
     constructor(
         public prismaService: PrismaService,
-        private _logService: LogService
+        private _logService: LogService,
+        private _producerService: ProducerService,
+        private _userService: UserService,
+        public booleanHandlerService: BooleanHandlerService
     ) { }
 
-    async paginate(params: ProducerPaginateDTO) {
+    async paginate(params: PersonPaginateDTO) {
         const order: Prisma.SortOrder =
             (params.order as unknown as Prisma.SortOrder) || 'asc';
         const page = params.page ? +params.page : 1;
         const perPage = params.pageSize ? +params.pageSize : 10;
 
-        const total = await this.prismaService.person.count({
-            where: {
-                name: {
-                    contains: params.search,
-                    mode: 'insensitive',
-                },
-            },
-        });
-
-        const totalPages = Math.ceil(total / perPage);
+        
         const offset = perPage * (page - 1);
+
+        const isUser = await this.booleanHandlerService.convert(params.isUser);
+        const isProducer = await this.booleanHandlerService.convert(params.isProducer);
+        const isCustomer = await this.booleanHandlerService.convert(params.isCustomer);
 
         const producers = await this.prismaService.person.findMany({
             select: {
@@ -63,6 +67,9 @@ export class PersonService {
                     contains: params.search,
                     mode: 'insensitive',
                 },
+                isUser: isUser,
+                isProducer: isProducer,
+                isCustomer: isCustomer
             },
             take: perPage,
             skip: offset,
@@ -70,6 +77,10 @@ export class PersonService {
                 name: order,
             },
         });
+
+        const total = producers.length;
+
+        const totalPages = Math.ceil(total / perPage);
 
         const response = {
             data: producers,
@@ -85,7 +96,10 @@ export class PersonService {
 
         try {
 
-            const person = await this.prismaService.person.create({
+            const user = data.user;
+            const producer = data.producer;
+
+            const person: any = await this.prismaService.person.create({
                 data: {
                     name: data.name,
                     email: data.email,
@@ -101,6 +115,24 @@ export class PersonService {
                     sysAdmin: false
                 }
             })
+
+            if (data.isUser) {
+                const checkUser = await this.prismaService.user.findUnique({
+                    where: {
+                        user: user.user
+                    }
+                })
+
+                if (checkUser) {
+                    throw new ConflictException(`Usuário ${user.user} já existe`);
+                }
+
+                const newUser = await this._userService.create(user, person);
+            }
+
+            if (data.isProducer) {
+                const newProducer = await this._producerService.create(producer, person);
+            }
 
 
             await this._logService.log({
@@ -159,18 +191,8 @@ export class PersonService {
 
     async update(data: PersonCreateDTO, user_id: string) {
 
-
-        const update = await this.prismaService.person.findUnique({
-            where: {
-                id: data.id,
-            },
-        });
-
-        const before = await this.prismaService.person.findUnique({
-            where: {
-                id: data.id,
-            },
-        });
+        const user = data.user;
+        const producer = data.producer;
 
         const person = await this.prismaService.person.update({
             where: {
@@ -191,6 +213,39 @@ export class PersonService {
             }
         });
 
+        if (data.isUser) {
+
+            const updateUser = await this.prismaService.user.update({
+                where: {
+                    person_id: person.id
+                },
+                data: {
+                    isActive: user.isActive
+                }
+            })
+        }
+
+        if (data.isProducer) {
+            const updateProducer = await this.prismaService.producer.update({
+                where: {
+                    person_id: person.id
+                },
+                data: {
+                    cad_pro: producer.cad_pro,
+                    ggn: producer.ggn
+                }
+            })
+        }
+
+
+        await this._logService.log({
+            user_id: user_id,
+            type: LogType.person,
+            action: 'Criou uma pessoa.',
+            before: null,
+            after: person.toString() ?? null
+        })
+
         await this._logService.log({
             user_id: user_id,
             type: LogType.person,
@@ -200,7 +255,7 @@ export class PersonService {
         })
 
         return {
-            message: 'Pessoao atualizada com sucesso',
+            message: 'Pessoa atualizada com sucesso',
             type: 'success'
         };
     }

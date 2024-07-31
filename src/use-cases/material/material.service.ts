@@ -4,16 +4,21 @@ import { MaterialPaginateDTO } from './dto/material-paginate.dto';
 import { Prisma } from '@prisma/client';
 import { MaterialCreateDTO } from './dto/material-create.dto';
 import { MaterialDetailDTO } from './dto/material-detail.dto';
+import { BooleanHandlerService } from 'src/shared/handlers/boolean.handler';
 
 @Injectable()
 export class MaterialService {
 
 
     constructor(
-        public prismaService: PrismaService
+        public prismaService: PrismaService,
+        public booleanHandlerService: BooleanHandlerService
     ) { }
 
     async paginate(params: MaterialPaginateDTO) {
+
+        const traceable = await this.booleanHandlerService.convert(params.traceable);
+
         const order: Prisma.SortOrder =
             (params.order as unknown as Prisma.SortOrder) || 'asc';
         const page = params.page ? +params.page : 1;
@@ -48,6 +53,7 @@ export class MaterialService {
                     contains: params.search,
                     mode: 'insensitive',
                 },
+                traceable: traceable
             },
             take: perPage,
             skip: offset,

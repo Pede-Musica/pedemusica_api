@@ -7,17 +7,10 @@ export class UserCreateDTO {
 
     @IsNotEmpty()
     @IsString()
-    name: string;
-
-    @IsNotEmpty()
-    @IsEmail()
-    email: string;
+    user: string;
 
     @IsNotEmpty()
     @IsBoolean()
     isActive: boolean;
 
-    @IsNotEmpty()
-    @IsString()
-    position: string;
 }

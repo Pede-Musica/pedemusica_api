@@ -17,4 +17,8 @@ export class ProductPaginateDTO {
     @IsNotEmpty()
     @IsString()
     order: string;
+
+    @IsNotEmpty()
+    @IsBoolean()
+    isActive: boolean;
 }

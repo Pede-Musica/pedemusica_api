@@ -19,7 +19,7 @@ export const User = createParamDecorator(
         }
 
         const payload: JwtDTO = jwtService.decode(token);
-
+        
         if (!payload.id) {
             throw new NotFoundException('User not found');
         }

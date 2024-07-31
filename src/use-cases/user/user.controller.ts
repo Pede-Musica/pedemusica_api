@@ -26,26 +26,6 @@ export class UserController {
         return await this.userService.authenticate(data);
     }
 
-    /* @Post('/create')
-    async create(@Body() data: UserCreateDTO,  @User() user_id: string) {
-        return await this.userService.create(data, user_id)
-    }
-
-    @Get('/paginate')
-    async paginate(@Query() params: UserPaginateDTO) {
-        return await this.userService.paginate(params)
-    }
-
-    @Get('/detail/:id')
-    async detail(@Param() data: FindUserByIdDTO) {
-        return await this.userService.detail(data)
-    }
-
-    @Post('/update')
-    async update(@Body() data: UserCreateDTO,  @User() user_id: string) {
-        return await this.userService.update(data, user_id)
-    } */
-
     @Public()
     @Post('/set-password')
     async setPassword(@Body() data: UserSetPasswordDTO) {

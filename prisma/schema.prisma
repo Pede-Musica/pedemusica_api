@@ -36,7 +36,7 @@ model Person {
 
   id          String   @id @unique @default(uuid())
   name        String   @db.VarChar(255)
-  email       String   @unique
+  email       String  
   position    String?   @db.VarChar(255)
   phone       String
   phone2      String?

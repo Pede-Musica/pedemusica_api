@@ -17,4 +17,8 @@ export class MaterialPaginateDTO {
     @IsNotEmpty()
     @IsString()
     order: string;
+
+    @IsNotEmpty()
+    @IsBoolean()
+    traceable: boolean
 }

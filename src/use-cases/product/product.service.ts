@@ -7,16 +7,22 @@ import { ProductCreateDTO } from './dto/product-create.dto';
 import { ProducerDetailDTO } from '../producer/dto/producer-detail.dto';
 import { LogService } from '../log/log.service';
 import { LogType } from 'src/shared/constants/log.enum';
+import { BooleanHandlerService } from 'src/shared/handlers/boolean.handler';
+import { ProductPaginateDTO } from './dto/product-paginate.dto';
 
 @Injectable()
 export class ProductService {
 
     constructor(
         public prismaService: PrismaService,
-        private _logService: LogService
+        private _logService: LogService,
+        public booleanHandlerService: BooleanHandlerService
     ) { }
 
-    async paginate(params: ProducerPaginateDTO) {
+    async paginate(params: ProductPaginateDTO) {
+
+        const isActive = await this.booleanHandlerService.convert(params.isActive);
+
         const order: Prisma.SortOrder =
             (params.order as unknown as Prisma.SortOrder) || 'asc';
         const page = params.page ? +params.page : 1;
@@ -50,6 +56,7 @@ export class ProductService {
                     contains: params.search,
                     mode: 'insensitive',
                 },
+                isActive: isActive
             },
             take: perPage,
             skip: offset,

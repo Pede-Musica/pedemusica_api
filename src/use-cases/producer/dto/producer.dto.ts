@@ -7,26 +7,6 @@ export class ProducerCreateDTO {
 
     @IsNotEmpty()
     @IsString()
-    name: string;
-
-    @IsNotEmpty()
-    @IsEmail()
-    email: string;
-
-    @IsNotEmpty()
-    @IsBoolean()
-    isActive: boolean;
-
-    @IsNotEmpty()
-    @IsString()
-    address: string;
-
-    @IsNotEmpty()
-    @IsString()
-    phone: string;
-
-    @IsNotEmpty()
-    @IsString()
     cad_pro: string;
 
     @IsNotEmpty()
