@@ -215,26 +215,47 @@ export class PersonService {
 
         if (data.isUser) {
 
-            const updateUser = await this.prismaService.user.update({
+            const currentUser = await this.prismaService.user.findUnique({
                 where: {
                     person_id: person.id
-                },
-                data: {
-                    isActive: user.isActive
                 }
             })
+
+            if(currentUser) {
+                const updateUser = await this.prismaService.user.update({
+                    where: {
+                        person_id: person.id
+                    },
+                    data: {
+                        isActive: user.isActive
+                    }
+                })
+            } else {
+                const newUser = await this._userService.create(user, data);
+            }
         }
 
         if (data.isProducer) {
-            const updateProducer = await this.prismaService.producer.update({
+            
+            const currentProducer = await this.prismaService.producer.findUnique({
                 where: {
                     person_id: person.id
-                },
-                data: {
-                    cad_pro: producer.cad_pro,
-                    ggn: producer.ggn
                 }
             })
+
+            if(currentProducer) {
+                const updateProducer = await this.prismaService.producer.update({
+                    where: {
+                        person_id: person.id
+                    },
+                    data: {
+                        cad_pro: producer.cad_pro,
+                        ggn: producer.ggn
+                    }
+                })
+            } else {
+                const newProducer = await this._producerService.create(producer, person.id);
+            }
         }
 
 
