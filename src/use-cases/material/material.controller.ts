@@ -31,4 +31,9 @@ export class MaterialController {
     async update(@Body() data: MaterialCreateDTO,  @User() user_id: string) {
         return await this.materialService.update(data, user_id)
     }
+
+    @Get('/combolist')
+    async combolist() {
+        return await this.materialService.combolist()
+    }
 }

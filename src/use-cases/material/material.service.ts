@@ -156,4 +156,18 @@ export class MaterialService {
             type: 'success'
         };
     }
+
+    async combolist() {
+        const materials = await this.prismaService.material.findMany({
+            where: {
+                isActive: true,
+                traceable: true
+            },
+            orderBy: {
+                name: 'asc'
+            }
+        });
+
+        return materials
+    }
 }

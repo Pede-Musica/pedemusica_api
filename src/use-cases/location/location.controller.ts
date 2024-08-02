@@ -4,6 +4,7 @@ import { LocationService } from './location.service';
 import { LocationCreateDTO } from './dto/location-create.dto';
 import { LocationDetailDTO } from './dto/location-detail.dto';
 import { LocationPaginateDTO } from './dto/location-paginate.dto';
+import { TrackDTO } from './dto/track.dto';
 
 @Controller('location')
 export class LocationController {
@@ -35,5 +36,15 @@ export class LocationController {
     @Get('/sector/combolist/')
     async getSectors() {
         return await this.locationService.getSectors()
+    }
+
+    @Get('/combolist/')
+    async combolist() {
+        return await this.locationService.combolist()
+    }
+
+    @Get('/track/')
+    async getTrack(@Query() param: TrackDTO) {
+        return await this.locationService.getTrack(param)
     }
 }

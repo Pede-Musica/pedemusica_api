@@ -24,7 +24,7 @@ model User {
 
   LogSystem       LogSystem[]
   NewUser         NewUser?
-  Enter           Enter[] 
+  Entry           Entry[] 
   Exit            Exit[]
   Transform       Transform[]
 
@@ -69,7 +69,7 @@ model Producer {
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
-  Enter   Enter[]
+  Entry   Entry[]
 
   @@map("producers")
 }
@@ -123,6 +123,7 @@ model Product {
 
   ProductType       ProductType[]
   ProductSize       ProductSize[]
+  Volume            Volume[]
 
   @@map("products")
 }
@@ -161,6 +162,8 @@ model Location {
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
+  Volume   Volume[]
+
   @@map("locations")
 }
 
@@ -189,6 +192,8 @@ model Material {
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
+  Volume Volume[]
+
   @@map("materials")
 }
 
@@ -208,44 +213,45 @@ model Register {
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
-  Enter  Enter?
+  Entry  Entry?
   Exit  Exit?
   Transform Transform?
 
   @@map("registers")
 }
 
-model Enter {
-  id            String  @id @unique @default(uuid())
+model Entry {
+  id         Int  @id @unique @default(autoincrement())
 
   register_id Int @unique
   Register   Register   @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  user_id String @unique
+  user_id String
   User   User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  producer_id String @unique
+  producer_id String
   Producer   Producer   @relation(fields: [producer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   
   field String
-  batch String
-  enter_at DateTime @default(now()) @db.Timestamp
+  entry_at DateTime @default(now()) @db.Timestamp
 
   observation   String? @db.Text()
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
+  Volume   Volume[]
+
   @@map("enters")
 }
 
 model Exit {
-  id            String  @id @unique @default(uuid())
+  id         Int  @id @unique @default(autoincrement())
 
   register_id Int @unique
   Register   Register   @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  user_id String @unique
+  user_id String
   User   User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   exit_at DateTime @default(now()) @db.Timestamp
@@ -258,12 +264,12 @@ model Exit {
 }
 
 model Transform {
-  id            String  @id @unique @default(uuid())
+  id         Int  @id @unique @default(autoincrement())
 
   register_id Int @unique
   Register   Register   @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  user_id String @unique
+  user_id String
   User   User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   trasnform_at DateTime @default(now()) @db.Timestamp
@@ -273,6 +279,33 @@ model Transform {
   updated_at DateTime @updatedAt @db.Timestamp
 
   @@map("transforms")
+}
+
+model Volume {
+  id            String  @id @unique @default(uuid())
+
+  entry_id Int
+  Entry   Entry   @relation(fields: [entry_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  product_id String
+  Product   Product   @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  size           String
+  type           String
+  amount         Int @db.Integer() @default(0)
+  volume         Int @db.Integer() @default(0)
+  volume_type       String
+
+  material_id String
+  Material   Material   @relation(fields: [material_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  location_id String?
+  Location   Location?   @relation(fields: [location_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
+
+  @@map("volumes")
 }
 
 

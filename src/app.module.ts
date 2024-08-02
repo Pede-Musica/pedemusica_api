@@ -13,6 +13,7 @@ import { MaterialModule } from './use-cases/material/material.module';
 import { LogModule } from './use-cases/log/log.module';
 import { SectorModule } from './use-cases/sector/sector.module';
 import { PersonModule } from './use-cases/person/person.module';
+import { RegisterModule } from './use-cases/register/register.module';
 @Module({
   imports: [
     AuthModule,
@@ -38,7 +39,8 @@ import { PersonModule } from './use-cases/person/person.module';
     MaterialModule,
     LogModule,
     SectorModule,
-    PersonModule
+    PersonModule,
+    RegisterModule
   ],
   controllers: [],
   providers: [MailService],

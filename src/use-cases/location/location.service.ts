@@ -4,6 +4,7 @@ import { LocationPaginateDTO } from './dto/location-paginate.dto';
 import { Prisma } from '@prisma/client';
 import { LocationCreateDTO } from './dto/location-create.dto';
 import { LocationDetailDTO } from './dto/location-detail.dto';
+import { TrackDTO } from './dto/track.dto';
 
 @Injectable()
 export class LocationService {
@@ -77,7 +78,7 @@ export class LocationService {
             })
 
             return {
-                message: 'Produto criado com sucesso',
+                message: 'Localização criado com sucesso',
             };
         }
         catch (error) {
@@ -143,10 +144,76 @@ export class LocationService {
 
     async getSectors() {
 
-        const sectors = await this.prismaService.sector.findMany();
+        const sectors = await this.prismaService.sector.findMany({
+            where: {
+                isActive: true
+            }
+        });
 
         return{
             data: sectors
         }
+    }
+
+    async combolist() {
+        const locations = await this.prismaService.location.findMany({
+            where: {
+                isActive: true
+            },
+            orderBy: {
+                name: 'asc'
+            }
+        });
+
+        return locations
+    }
+
+    async getTrack(params: TrackDTO) {
+
+        const sector_id = params.sector_id;
+
+        const filterConditions = {
+            isActive: true
+        };
+        
+        if (sector_id) {
+            filterConditions['sector_id'] = String(sector_id);
+        }
+
+        const locations = await this.prismaService.location.findMany({
+            where: filterConditions,
+            select: {
+                id: true,
+                name: true,
+                isActive: true,
+                description: true,
+                sector_id: true,
+
+                Volume: {
+                    select: {
+                        created_at: true,
+                        entry_id: true,
+                        Entry: {
+                            select: {
+                                Producer: {
+                                    select: {
+                                        Person: true
+                                    }
+                                }
+                            }
+                        },
+                        Product: true,
+                        Material: true,
+                        amount: true,
+                        size: true,
+                        type: true,
+                        volume: true,
+                        volume_type: true
+                    }
+                }
+            }
+        })
+
+        return locations;
     }
 }
