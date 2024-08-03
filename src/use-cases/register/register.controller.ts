@@ -15,4 +15,5 @@ export class RegisterController {
         return await this.registerService.createEntry(data, user_id)
     }
 
+
 }

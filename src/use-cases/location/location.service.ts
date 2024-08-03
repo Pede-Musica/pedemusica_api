@@ -100,6 +100,38 @@ export class LocationService {
                 Sector: true,
                 created_at: true,
                 updated_at: true,
+
+                Volume: {
+                    select: {
+                        created_at: true,
+                        entry_id: true,
+                        Entry: {
+                            select: {
+                                observation: true,
+                                Producer: {
+                                    select: {
+                                        Person: true
+                                    }
+                                },
+                                User: {
+                                    select: {
+                                        Person: {
+                                            select: {
+                                                name: true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        Product: true,
+                        Material: true,
+                        amount: true,
+                        size: true,
+                        type: true,
+                        volume: true,
+                    }
+                } 
             },
         });
 
@@ -208,7 +240,6 @@ export class LocationService {
                         size: true,
                         type: true,
                         volume: true,
-                        volume_type: true
                     }
                 }
             }

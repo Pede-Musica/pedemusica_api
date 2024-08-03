@@ -51,7 +51,6 @@ export class RegisterService {
                             size: volume.size,
                             type: volume.type,
                             volume: volume.material.volume,
-                            volume_type: volume.material.volume_type,
                             material_id: volume.material.id,
                             location_id: volume.location.id,
                         }

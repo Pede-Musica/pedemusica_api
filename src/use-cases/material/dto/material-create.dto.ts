@@ -23,10 +23,6 @@ export class MaterialCreateDTO {
     volume: number;
 
     @IsNotEmpty()
-    @IsString()
-    volume_type: string;
-
-    @IsNotEmpty()
     @IsBoolean()
     traceable: boolean;
 

@@ -180,19 +180,19 @@ model Sector {
 }
 
 model Material {
-  id            String  @id @unique @default(uuid())
-  name          String  @db.VarChar(255)
-  isActive      Boolean @default(true)
-  volume        Int @db.Integer() @default(0)
-  volume_type   String
-  in_stock      Int  @db.Integer() @default(0)
-  traceable     Boolean @default(false)
-  description   String? @db.Text()
+  id            String   @id @unique @default(uuid())
+  name          String   @db.VarChar(255)
+  isActive      Boolean  @default(true)
+  volume        Float    @default(0)
+  in_stock      Int      @db.Integer() @default(0)
+  traceable     Boolean  @default(false)
+  description   String?  @db.Text()
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
   Volume Volume[]
+  VolumeExit VolumeExit[]
 
   @@map("materials")
 }
@@ -241,6 +241,8 @@ model Entry {
   updated_at DateTime @updatedAt @db.Timestamp
 
   Volume   Volume[]
+  VolueLog  VolumeLog[]
+  VolumeExit VolumeExit[]
 
   @@map("enters")
 }
@@ -259,6 +261,8 @@ model Exit {
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
+
+  VolumeExit VolumeExit[]
 
   @@map("exits")
 }
@@ -293,8 +297,10 @@ model Volume {
   size           String
   type           String
   amount         Int @db.Integer() @default(0)
-  volume         Int @db.Integer() @default(0)
-  volume_type       String
+  volume         Float @default(0)
+
+  transformed     Boolean @default(false)
+  exited     Boolean @default(false)
 
   material_id String
   Material   Material   @relation(fields: [material_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -306,6 +312,46 @@ model Volume {
   updated_at DateTime @updatedAt @db.Timestamp
 
   @@map("volumes")
+}
+
+model VolumeLog {
+  id            String  @id @unique @default(uuid())
+
+  entry_id    Int
+  Entry       Entry   @relation(fields: [entry_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  history     String? @db.Text()
+
+  created_at  DateTime @default(now()) @db.Timestamp
+  updated_at  DateTime @updatedAt @db.Timestamp
+
+  @@map("volume_logs")
+}
+
+model VolumeExit {
+  id            String  @id @unique @default(uuid())
+
+  entry_id Int
+  Entry   Entry   @relation(fields: [entry_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  exit_id Int
+  Exit   Exit   @relation(fields: [exit_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  size           String
+  type           String
+  amount         Int     @db.Integer() @default(0)
+  volume         Float   @default(0)
+
+  transformed     Boolean @default(false)
+  exited     Boolean @default(false)
+
+  material_id String
+  Material   Material   @relation(fields: [material_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
+
+  @@map("volume_exits")
 }
 
 

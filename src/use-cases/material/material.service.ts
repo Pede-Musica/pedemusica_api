@@ -42,7 +42,6 @@ export class MaterialService {
                 name: true,
                 isActive: true,
                 volume: true,
-                volume_type: true,
                 traceable: true,
                 description: true,
                 created_at: true,
@@ -80,7 +79,6 @@ export class MaterialService {
                     name: data.name,
                     isActive: data.isActive,
                     volume: data.volume,
-                    volume_type: data.volume_type,
                     in_stock: data.in_stock,
                     traceable: data.traceable,
                     description: data.description
@@ -106,7 +104,6 @@ export class MaterialService {
                 name: true,
                 isActive: true,
                 volume: true,
-                volume_type: true,
                 in_stock: true,
                 traceable: true,
                 description: true,
@@ -144,7 +141,6 @@ export class MaterialService {
                 name: data.name,
                 isActive: data.isActive,
                 volume: data.volume,
-                volume_type: data.volume_type,
                 in_stock: data.in_stock,
                 traceable: data.traceable,
                 description: data.description
