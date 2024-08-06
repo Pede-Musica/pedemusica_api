@@ -131,7 +131,7 @@ export class PersonService {
             }
 
             if (data.isProducer) {
-                const newProducer = await this._producerService.create(producer, person);
+                const newProducer = await this._producerService.create(producer, person.id);
             }
 
 
