@@ -126,6 +126,7 @@ export class LocationService {
                         },
                         Product: true,
                         Material: true,
+                        product_name: true,
                         amount: true,
                         size: true,
                         type: true,
@@ -236,12 +237,13 @@ export class LocationService {
                         },
                         Product: true,
                         Material: true,
+                        product_name: true,
                         amount: true,
                         size: true,
                         type: true,
                         volume: true,
                     }
-                }
+                },
             }
         })
 

@@ -3,6 +3,8 @@ import { PrismaService } from 'src/infra/database/prisma.service';
 import { BooleanHandlerService } from 'src/shared/handlers/boolean.handler';
 import { EntryCreateDTO } from './dto/entry-create.dto';
 import { RegisterType } from 'src/shared/constants/register.enum';
+import { RegisterPaginateDTO } from './dto/register-list.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class RegisterService {
@@ -18,7 +20,7 @@ export class RegisterService {
 
             const products = data.products;
 
-            if(products.length === 0) {
+            if (products.length === 0) {
                 throw new ConflictException('Sem produtos de entrada');
             }
 
@@ -39,14 +41,29 @@ export class RegisterService {
                 }
             })
 
-            products.map( async(product: any) => {
+            products.map(async (product: any) => {
 
-                product?.volumes?.map( async (volume: any) => {
+                product?.volumes?.map(async (volume: any) => {
 
                     await this.prismaService.volume.create({
                         data: {
                             entry_id: newEntry.id,
                             product_id: product.id,
+                            product_name: product.name,
+                            amount: volume.amount,
+                            size: volume.size,
+                            type: volume.type,
+                            volume: volume.material.volume,
+                            material_id: volume.material.id,
+                            location_id: volume.location.id,
+                        }
+                    })
+
+                    await this.prismaService.volumeEnter.create({
+                        data: {
+                            entry_id: newEntry.id,
+                            product_id: product.id,
+                            product_name: product.name,
                             amount: volume.amount,
                             size: volume.size,
                             type: volume.type,
@@ -56,7 +73,7 @@ export class RegisterService {
                         }
                     })
                 })
-                
+
             })
 
             return {
@@ -66,5 +83,61 @@ export class RegisterService {
         catch (error) {
             throw new ConflictException(error.message)
         }
+    }
+
+    async getRegister(params: RegisterPaginateDTO) {
+        const order: Prisma.SortOrder =
+            (params.order as unknown as Prisma.SortOrder) || 'asc';
+        const page = params.page ? +params.page : 1;
+        const perPage = params.pageSize ? +params.pageSize : 10;
+
+        const total = await this.prismaService.location.count();
+
+        const totalPages = Math.ceil(total / perPage);
+        const offset = perPage * (page - 1);
+
+        const registers = await this.prismaService.register.findMany({
+            select:{
+                id: true,
+                type: true,
+                created_at: true,
+                Entry: {
+                    select: {
+                        id: true,
+                        observation: true,
+                        VolumeEnter: true,
+                        Producer: {
+                            select: {
+                                Person: true
+                            }
+                        },
+                        User: {
+                            select: {
+                                Person: {
+                                    select: {
+                                        name: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                Exit: true,
+            },
+            take: perPage,
+            skip: offset,
+            orderBy: {
+                created_at: order,
+            },
+        })
+
+        const response = {
+            data: registers,
+            total,
+            page,
+            totalPages,
+        };
+
+        return response;
     }
 }

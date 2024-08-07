@@ -54,6 +54,7 @@ model Person {
   Customer    Customer?
   User        User?
   Producer    Producer?
+  Exit        Exit[]
 
   @@map("persons")
 }
@@ -121,9 +122,11 @@ model Product {
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
-  ProductType       ProductType[]
-  ProductSize       ProductSize[]
-  Volume            Volume[]
+  ProductType            ProductType[]
+  ProductSize            ProductSize[]
+  Volume                 Volume[]
+  VolumeEnter            VolumeEnter[]
+  VolumeExit             VolumeExit[]
 
   @@map("products")
 }
@@ -163,6 +166,7 @@ model Location {
   updated_at DateTime @updatedAt @db.Timestamp
 
   Volume   Volume[]
+  VolumeEnter  VolumeEnter[]
 
   @@map("locations")
 }
@@ -191,8 +195,9 @@ model Material {
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
-  Volume Volume[]
-  VolumeExit VolumeExit[]
+  Volume       Volume[]
+  VolumeEnter  VolumeEnter[]
+  VolumeExit   VolumeExit[]
 
   @@map("materials")
 }
@@ -240,15 +245,21 @@ model Entry {
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
-  Volume   Volume[]
-  VolueLog  VolumeLog[]
-  VolumeExit VolumeExit[]
+  Volume        Volume[]
+  VolumeEnter   VolumeEnter[]
+  VolueLog      VolumeLog[]
+  VolumeExit    VolumeExit[]
 
   @@map("enters")
 }
 
 model Exit {
   id         Int  @id @unique @default(autoincrement())
+
+  exit_type String
+
+  person_id  String?
+  Person   Person?   @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   register_id Int @unique
   Register   Register   @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -294,6 +305,7 @@ model Volume {
   product_id String
   Product   Product   @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  product_name   String
   size           String
   type           String
   amount         Int @db.Integer() @default(0)
@@ -328,6 +340,33 @@ model VolumeLog {
   @@map("volume_logs")
 }
 
+model VolumeEnter {
+  id            String  @id @unique @default(uuid())
+
+  entry_id Int
+  Entry   Entry   @relation(fields: [entry_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  product_id String
+  Product   Product   @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  product_name   String
+  size           String
+  type           String
+  amount         Int @db.Integer() @default(0)
+  volume         Float @default(0)
+
+  material_id String
+  Material   Material   @relation(fields: [material_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  location_id String?
+  Location   Location?   @relation(fields: [location_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
+
+  @@map("volume_enters")
+}
+
 model VolumeExit {
   id            String  @id @unique @default(uuid())
 
@@ -337,6 +376,10 @@ model VolumeExit {
   exit_id Int
   Exit   Exit   @relation(fields: [exit_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  product_id String
+  Product   Product   @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  product_name   String
   size           String
   type           String
   amount         Int     @db.Integer() @default(0)
@@ -354,4 +397,15 @@ model VolumeExit {
   @@map("volume_exits")
 }
 
+model SystemParam {
+  id            String  @id @unique @default(uuid())
 
+  label         String @unique 
+
+  value         String?
+
+  created_at  DateTime @default(now()) @db.Timestamp
+  updated_at  DateTime @updatedAt @db.Timestamp
+
+  @@map("system_params")
+}
