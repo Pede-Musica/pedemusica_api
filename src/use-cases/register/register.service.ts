@@ -87,11 +87,11 @@ export class RegisterService {
 
     async getRegister(params: RegisterPaginateDTO) {
         const order: Prisma.SortOrder =
-            (params.order as unknown as Prisma.SortOrder) || 'asc';
+            (params.order as unknown as Prisma.SortOrder) || 'desc';
         const page = params.page ? +params.page : 1;
         const perPage = params.pageSize ? +params.pageSize : 10;
 
-        const total = await this.prismaService.location.count();
+        const total = await this.prismaService.register.count();
 
         const totalPages = Math.ceil(total / perPage);
         const offset = perPage * (page - 1);

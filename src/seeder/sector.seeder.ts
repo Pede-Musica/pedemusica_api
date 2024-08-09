@@ -14,13 +14,13 @@ export async function sectorSeeder() {
             name: 'Câmara fria',
         },
         {
-            name: 'A',
+            name: 'Setor A',
         },
         {
-            name: 'B',
+            name: 'Setor B',
         },
         {
-            name: 'C',
+            name: 'Stash',
         },
     ];
 

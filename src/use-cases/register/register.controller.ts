@@ -17,7 +17,7 @@ export class RegisterController {
     }
 
     @Get('/paginate')
-    async getRegister(@Param() data: RegisterPaginateDTO) {
+    async getRegister(@Query() data: RegisterPaginateDTO) {
         return await this.registerService.getRegister(data);
     }
 }

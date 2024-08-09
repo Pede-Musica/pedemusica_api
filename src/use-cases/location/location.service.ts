@@ -103,6 +103,7 @@ export class LocationService {
 
                 Volume: {
                     select: {
+                        id: true,
                         created_at: true,
                         entry_id: true,
                         Entry: {
