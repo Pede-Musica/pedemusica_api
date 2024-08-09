@@ -26,4 +26,9 @@ export class RegisterController {
     async detail(@Param() data: RegisterDetailDTO) {
         return await this.registerService.detail(data)
     }
+
+    @Get('/exit')
+    async list() {
+        return await this.registerService.listExit();
+    }
 }

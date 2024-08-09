@@ -247,7 +247,7 @@ model Entry {
 
   Volume        Volume[]
   VolumeEnter   VolumeEnter[]
-  VolueLog      VolumeLog[]
+  VolumeLog      VolumeLog[]
   VolumeExit    VolumeExit[]
 
   @@map("enters")
@@ -269,6 +269,8 @@ model Exit {
 
   exit_at DateTime @default(now()) @db.Timestamp
   observation   String? @db.Text()
+
+  status  String
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp

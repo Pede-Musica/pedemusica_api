@@ -222,6 +222,11 @@ export class RegisterService {
                             }
                         },
                         VolumeExit: true,
+                        VolumeLog: {
+                            orderBy:{
+                                created_at: 'asc'
+                            }
+                        }
                     }
                     
                 },
@@ -234,5 +239,14 @@ export class RegisterService {
         } else {
             throw new NotFoundException('Registro não encontrado')
         }
+    }
+
+    async listExit() {
+
+        const exits = await this.prismaService.exit.findMany({
+            where:{
+                
+            }
+        })
     }
 }

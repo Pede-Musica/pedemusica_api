@@ -112,7 +112,7 @@ export class VolumeService {
 
             const log_1 = {
                 entry_id: current_volume.entry_id,
-                history: `Movimentação: Retirado ${data.drawn_amount} ${data.drawn_amount > 1 ? 'unidades' : 'unidade'} de ${data.current_volume.Location.name}.`
+                history: `Retirado ${data.drawn_amount} ${data.drawn_amount > 1 ? 'unidades' : 'unidade'} de ${data.current_volume.Location.name}.`
             }
 
             await this.log(log_1)
@@ -141,7 +141,7 @@ export class VolumeService {
 
                     const log = {
                         entry_id: current_volume.entry_id,
-                        history: `Movimentação: Com origem de ${data.current_volume.Location.name}, criado novo volume de ${vol.amount} ${vol.amount > 1 ? 'unidades' : 'unidade'} com material ${material.name} para ${new_location.name}.`
+                        history: `Retirado de ${data.current_volume.Location.name}, criado novo volume de ${vol.amount} ${vol.amount > 1 ? 'unidades' : 'unidade'} com material ${new_material.name} para ${new_location.name}.`
                     }
 
                     await this.log(log)
