@@ -1,10 +1,12 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/infra/database/prisma.service';
 import { BooleanHandlerService } from 'src/shared/handlers/boolean.handler';
 import { EntryCreateDTO } from './dto/entry-create.dto';
 import { RegisterType } from 'src/shared/constants/register.enum';
 import { RegisterPaginateDTO } from './dto/register-list.dto';
 import { Prisma } from '@prisma/client';
+import { RegisterDetailDTO } from './dto/register-detail.dto';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class RegisterService {
@@ -139,5 +141,98 @@ export class RegisterService {
         };
 
         return response;
+    }
+
+    async detail(data: RegisterDetailDTO){
+
+        const register = await this.prismaService.register.findUnique({
+            where: {
+                id: data.id
+            },
+            select: {
+                id: true,
+                type: true,
+                created_at: true,
+                updated_at: true,
+                Entry: {
+                    select:{
+                        id: true,
+                        created_at: true,
+                        field: true,
+                        entry_at: true,
+                        observation: true,
+                        Producer: {
+                            select: {
+                                Person: true
+                            }
+                        },
+                        User:{
+                            select:{
+                                Person: true
+                            }
+                        },
+                        VolumeEnter: {
+                            select: {
+                                id: true,
+                                created_at: true,
+                                entry_id: true,
+                                Entry: {
+                                    select: {
+                                        Register: true,
+                                        Producer: {
+                                            select: {
+                                                Person: true
+                                            }
+                                        },
+                                    }
+                                },
+                                Product: true,
+                                Material: true,
+                                product_name: true,
+                                amount: true,
+                                size: true,
+                                type: true,
+                                volume: true,
+                                Location: true,
+                            }
+                        },
+                        Volume: {
+                            select: {
+                                id: true,
+                                created_at: true,
+                                entry_id: true,
+                                Entry: {
+                                    select: {
+                                        Register: true,
+                                        Producer: {
+                                            select: {
+                                                Person: true
+                                            }
+                                        },
+                                    }
+                                },
+                                Product: true,
+                                Material: true,
+                                product_name: true,
+                                amount: true,
+                                size: true,
+                                type: true,
+                                volume: true,
+                                Location: true,
+                            }
+                        },
+                        VolumeExit: true,
+                    }
+                    
+                },
+                Exit: true,
+            }
+        })
+
+        if(register){
+            return register
+        } else {
+            throw new NotFoundException('Registro não encontrado')
+        }
     }
 }

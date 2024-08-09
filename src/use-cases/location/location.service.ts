@@ -108,6 +108,7 @@ export class LocationService {
                         entry_id: true,
                         Entry: {
                             select: {
+                                Register: true,
                                 observation: true,
                                 Producer: {
                                     select: {
@@ -225,10 +226,12 @@ export class LocationService {
 
                 Volume: {
                     select: {
+                        id: true,
                         created_at: true,
                         entry_id: true,
                         Entry: {
                             select: {
+                                Register: true,
                                 Producer: {
                                     select: {
                                         Person: true
@@ -245,6 +248,9 @@ export class LocationService {
                         volume: true,
                     }
                 },
+            },
+            orderBy: {
+                name: 'asc'
             }
         })
 

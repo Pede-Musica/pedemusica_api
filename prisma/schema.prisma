@@ -212,7 +212,7 @@ model Content {
 }
 
 model Register {
-  id         Int  @id @unique @default(autoincrement())
+  id            String  @id @unique @default(uuid())
   type       String
 
   created_at DateTime @default(now()) @db.Timestamp
@@ -228,7 +228,7 @@ model Register {
 model Entry {
   id         Int  @id @unique @default(autoincrement())
 
-  register_id Int @unique
+  register_id String @unique
   Register   Register   @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   user_id String
@@ -261,7 +261,7 @@ model Exit {
   person_id  String?
   Person   Person?   @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  register_id Int @unique
+  register_id String @unique
   Register   Register   @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   user_id String
@@ -281,7 +281,7 @@ model Exit {
 model Transform {
   id         Int  @id @unique @default(autoincrement())
 
-  register_id Int @unique
+  register_id String @unique
   Register   Register   @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   user_id String

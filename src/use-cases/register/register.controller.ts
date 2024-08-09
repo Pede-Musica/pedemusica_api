@@ -3,6 +3,7 @@ import { User } from 'src/decorators/user.decorator';
 import { RegisterService } from './register.service';
 import { EntryCreateDTO } from './dto/entry-create.dto';
 import { RegisterPaginateDTO } from './dto/register-list.dto';
+import { RegisterDetailDTO } from './dto/register-detail.dto';
 
 @Controller('register')
 export class RegisterController {
@@ -19,5 +20,10 @@ export class RegisterController {
     @Get('/paginate')
     async getRegister(@Query() data: RegisterPaginateDTO) {
         return await this.registerService.getRegister(data);
+    }
+
+    @Get('/detail/:id')
+    async detail(@Param() data: RegisterDetailDTO) {
+        return await this.registerService.detail(data)
     }
 }
