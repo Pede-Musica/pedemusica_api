@@ -24,4 +24,8 @@ export class VolumeTransformDTO {
     @IsNotEmpty()
     @IsString()
     updated_at: string;
+
+    @IsNotEmpty()
+    @IsString()
+    movimentation_type: string;
 }

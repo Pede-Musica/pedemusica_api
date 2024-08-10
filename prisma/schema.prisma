@@ -11,92 +11,92 @@ datasource db {
 }
 
 model User {
-  id          String  @id @unique @default(uuid())
-  isActive    Boolean @default(true)
-  user        String? @unique
-  password    String?
+  id       String  @id @unique @default(uuid())
+  isActive Boolean @default(true)
+  user     String? @unique
+  password String?
 
-  Person   Person?   @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  person_id String?  @unique
-  
+  Person    Person? @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  person_id String? @unique
+
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
-  LogSystem       LogSystem[]
-  NewUser         NewUser?
-  Entry           Entry[] 
-  Exit            Exit[]
-  Transform       Transform[]
+  LogSystem LogSystem[]
+  NewUser   NewUser?
+  Entry     Entry[]
+  Exit      Exit[]
+  Transform Transform[]
+  VolumeLog   VolumeLog[]
 
   @@map("users")
 }
 
-
 model Person {
+  id         String  @id @unique @default(uuid())
+  name       String  @db.VarChar(255)
+  email      String
+  position   String? @db.VarChar(255)
+  phone      String
+  phone2     String?
+  address    String? @db.VarChar(255)
+  type       Int     @default(1)
+  cpf_cnpj   String? @db.VarChar(255)
+  sysAdmin   Boolean @default(false)
+  isUser     Boolean @default(false)
+  isCustomer Boolean @default(false)
+  isProducer Boolean @default(false)
 
-  id          String   @id @unique @default(uuid())
-  name        String   @db.VarChar(255)
-  email       String  
-  position    String?   @db.VarChar(255)
-  phone       String
-  phone2      String?
-  address     String?   @db.VarChar(255)
-  type        Int      @default(1)
-  cpf_cnpj    String?  @db.VarChar(255)
-  sysAdmin    Boolean  @default(false)
-  isUser      Boolean  @default(false)
-  isCustomer    Boolean  @default(false)
-  isProducer    Boolean  @default(false)
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
 
-  created_at DateTime  @default(now()) @db.Timestamp
-  updated_at DateTime  @updatedAt @db.Timestamp
-
-  Customer    Customer?
-  User        User?
-  Producer    Producer?
-  Exit        Exit[]
+  Customer Customer?
+  User     User?
+  Producer Producer?
+  Exit     Exit[]
 
   @@map("persons")
 }
 
 model Producer {
-  id          String  @id @unique @default(uuid())
-  cad_pro     String?  @db.VarChar(255)
-  ggn         String?  @db.VarChar(255)
+  id      String  @id @unique @default(uuid())
+  cad_pro String? @db.VarChar(255)
+  ggn     String? @db.VarChar(255)
 
-  Person   Person?   @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  person_id String?  @unique
+  Person    Person? @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  person_id String? @unique
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
-  Entry   Entry[]
+  Entry Entry[]
 
   @@map("producers")
 }
 
 model Customer {
-  id          String  @id @unique @default(uuid())
+  id String @id @unique @default(uuid())
 
-  Person   Person?   @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  person_id String?  @unique
+  Person    Person? @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  person_id String? @unique
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
   @@map("customers")
 }
-model LogSystem {
-  id        String @id @unique @default(uuid())
 
-  User   User?   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+model LogSystem {
+  id String @id @unique @default(uuid())
+
+  User    User?   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   user_id String?
 
-  type     String
-  action    String
-  
-  before    Json?
-  after     Json?
+  type   String
+  action String
+
+  before     Json?
+  after      Json?
   created_at DateTime @default(now()) @db.Timestamp
 
   @@map("log_systems")
@@ -107,48 +107,46 @@ model NewUser {
   token String @unique
 
   user_id String? @unique
-  User   User?   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  User    User?   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@map("new_user")
 }
 
-
-
 model Product {
-  id          String  @id @unique @default(uuid())
-  name        String  @db.VarChar(255)
-  isActive    Boolean @default(true)
+  id       String  @id @unique @default(uuid())
+  name     String  @db.VarChar(255)
+  isActive Boolean @default(true)
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
-  ProductType            ProductType[]
-  ProductSize            ProductSize[]
-  Volume                 Volume[]
-  VolumeEnter            VolumeEnter[]
-  VolumeExit             VolumeExit[]
+  ProductType ProductType[]
+  ProductSize ProductSize[]
+  Volume      Volume[]
+  VolumeEnter VolumeEnter[]
+  VolumeExit  VolumeExit[]
 
   @@map("products")
 }
 
 model ProductType {
-  id          String  @id @unique @default(uuid())
-  name        String  @db.VarChar(255)
-  isActive    Boolean @default(true)
+  id       String  @id @unique @default(uuid())
+  name     String  @db.VarChar(255)
+  isActive Boolean @default(true)
 
   product_id String?
-  Product   Product?   @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Product    Product? @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@map("product_types")
 }
 
 model ProductSize {
-  id          String  @id @unique @default(uuid())
-  name        String  @db.VarChar(255)
-  isActive    Boolean @default(true)
+  id       String  @id @unique @default(uuid())
+  name     String  @db.VarChar(255)
+  isActive Boolean @default(true)
 
   product_id String?
-  Product   Product?   @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Product    Product? @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@map("product_sizes")
 }
@@ -160,50 +158,50 @@ model Location {
   description String? @db.VarChar(255)
 
   sector_id String?
-  Sector   Sector?   @relation(fields: [sector_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  
+  Sector    Sector? @relation(fields: [sector_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
-  Volume   Volume[]
-  VolumeEnter  VolumeEnter[]
+  Volume      Volume[]
+  VolumeEnter VolumeEnter[]
 
   @@map("locations")
 }
 
 model Sector {
-  id          String  @id @unique @default(uuid())
-  name        String  @db.VarChar(255) @unique
-  isActive      Boolean @default(true)
+  id       String  @id @unique @default(uuid())
+  name     String  @unique @db.VarChar(255)
+  isActive Boolean @default(true)
 
-  Location       Location[]
-  created_at DateTime @default(now()) @db.Timestamp
-  updated_at DateTime @updatedAt @db.Timestamp
+  Location   Location[]
+  created_at DateTime   @default(now()) @db.Timestamp
+  updated_at DateTime   @updatedAt @db.Timestamp
 
   @@map("sectors")
 }
 
 model Material {
-  id            String   @id @unique @default(uuid())
-  name          String   @db.VarChar(255)
-  isActive      Boolean  @default(true)
-  volume        Float    @default(0)
-  in_stock      Int      @db.Integer() @default(0)
-  traceable     Boolean  @default(false)
-  description   String?  @db.Text()
+  id          String  @id @unique @default(uuid())
+  name        String  @db.VarChar(255)
+  isActive    Boolean @default(true)
+  volume      Float   @default(0)
+  in_stock    Int     @default(0) @db.Integer()
+  traceable   Boolean @default(false)
+  description String? @db.Text()
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
-  Volume       Volume[]
-  VolumeEnter  VolumeEnter[]
-  VolumeExit   VolumeExit[]
+  Volume      Volume[]
+  VolumeEnter VolumeEnter[]
+  VolumeExit  VolumeExit[]
 
   @@map("materials")
 }
 
 model Content {
-  id         Int  @id @unique @default(autoincrement())
+  id Int @id @unique @default(autoincrement())
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
@@ -212,85 +210,86 @@ model Content {
 }
 
 model Register {
-  id            String  @id @unique @default(uuid())
-  type       String
+  id   String @id @unique @default(uuid())
+  type String
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
-  Entry  Entry?
-  Exit  Exit?
+  Entry     Entry?
+  Exit      Exit?
   Transform Transform?
 
   @@map("registers")
 }
 
 model Entry {
-  id         Int  @id @unique @default(autoincrement())
+  id Int @id @unique @default(autoincrement())
 
-  register_id String @unique
-  Register   Register   @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  register_id String   @unique
+  Register    Register @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   user_id String
-  User   User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  User    User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   producer_id String
-  Producer   Producer   @relation(fields: [producer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  
-  field String
+  Producer    Producer @relation(fields: [producer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  field    String
   entry_at DateTime @default(now()) @db.Timestamp
 
-  observation   String? @db.Text()
+  observation String? @db.Text()
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
-  Volume        Volume[]
-  VolumeEnter   VolumeEnter[]
-  VolumeLog      VolumeLog[]
-  VolumeExit    VolumeExit[]
+  Volume      Volume[]
+  VolumeEnter VolumeEnter[]
+  VolumeLog   VolumeLog[]
+  VolumeExit  VolumeExit[]
 
   @@map("enters")
 }
 
 model Exit {
-  id         Int  @id @unique @default(autoincrement())
+  id Int @id @unique @default(autoincrement())
 
   exit_type String
 
-  person_id  String?
-  Person   Person?   @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  person_id String?
+  Person    Person? @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  register_id String @unique
-  Register   Register   @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  register_id String   @unique
+  Register    Register @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   user_id String
-  User   User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  User    User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  exit_at DateTime @default(now()) @db.Timestamp
-  observation   String? @db.Text()
+  exit_at     DateTime @default(now()) @db.Timestamp
+  observation String?  @db.Text()
 
-  status  String
+  status String
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
+  Volume     Volume[]
   VolumeExit VolumeExit[]
 
   @@map("exits")
 }
 
 model Transform {
-  id         Int  @id @unique @default(autoincrement())
+  id Int @id @unique @default(autoincrement())
 
-  register_id String @unique
-  Register   Register   @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  register_id String   @unique
+  Register    Register @relation(fields: [register_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   user_id String
-  User   User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  User    User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   trasnform_at DateTime @default(now()) @db.Timestamp
-  observation   String? @db.Text()
+  observation  String?  @db.Text()
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
@@ -299,69 +298,78 @@ model Transform {
 }
 
 model Volume {
-  id            String  @id @unique @default(uuid())
+  id String @id @unique @default(uuid())
 
   entry_id Int
-  Entry   Entry   @relation(fields: [entry_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Entry    Entry @relation(fields: [entry_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   product_id String
-  Product   Product   @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Product    Product @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  product_name   String
-  size           String
-  type           String
-  amount         Int @db.Integer() @default(0)
-  volume         Float @default(0)
+  product_name String
+  size         String
+  type         String
+  amount       Int    @default(0) @db.Integer()
+  volume       Float  @default(0)
 
-  transformed     Boolean @default(false)
-  exited     Boolean @default(false)
+  transformed Boolean @default(false)
+  exited      Boolean @default(false)
 
   material_id String
-  Material   Material   @relation(fields: [material_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Material    Material @relation(fields: [material_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   location_id String?
-  Location   Location?   @relation(fields: [location_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Location    Location? @relation(fields: [location_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  exit_id Int?
+  Exit    Exit? @relation(fields: [exit_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
+
 
   @@map("volumes")
 }
 
 model VolumeLog {
-  id            String  @id @unique @default(uuid())
+  id String @id @unique @default(uuid())
 
-  entry_id    Int
-  Entry       Entry   @relation(fields: [entry_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  entry_id Int
+  Entry    Entry @relation(fields: [entry_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  history     String? @db.Text()
+  origin_history      String? @db.Text()
+  dropped_amount      Float  @default(0)
+  generated_history   String? @db.Text()
 
-  created_at  DateTime @default(now()) @db.Timestamp
-  updated_at  DateTime @updatedAt @db.Timestamp
+  user_id String
+  User    User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
 
   @@map("volume_logs")
 }
 
 model VolumeEnter {
-  id            String  @id @unique @default(uuid())
+  id String @id @unique @default(uuid())
 
   entry_id Int
-  Entry   Entry   @relation(fields: [entry_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Entry    Entry @relation(fields: [entry_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   product_id String
-  Product   Product   @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Product    Product @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  product_name   String
-  size           String
-  type           String
-  amount         Int @db.Integer() @default(0)
-  volume         Float @default(0)
+  product_name String
+  size         String
+  type         String
+  amount       Int    @default(0) @db.Integer()
+  volume       Float  @default(0)
 
   material_id String
-  Material   Material   @relation(fields: [material_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Material    Material @relation(fields: [material_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   location_id String?
-  Location   Location?   @relation(fields: [location_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Location    Location? @relation(fields: [location_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
@@ -370,28 +378,28 @@ model VolumeEnter {
 }
 
 model VolumeExit {
-  id            String  @id @unique @default(uuid())
+  id String @id @unique @default(uuid())
 
   entry_id Int
-  Entry   Entry   @relation(fields: [entry_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Entry    Entry @relation(fields: [entry_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   exit_id Int
-  Exit   Exit   @relation(fields: [exit_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Exit    Exit @relation(fields: [exit_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   product_id String
-  Product   Product   @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Product    Product @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  product_name   String
-  size           String
-  type           String
-  amount         Int     @db.Integer() @default(0)
-  volume         Float   @default(0)
+  product_name String
+  size         String
+  type         String
+  amount       Int    @default(0) @db.Integer()
+  volume       Float  @default(0)
 
-  transformed     Boolean @default(false)
-  exited     Boolean @default(false)
+  transformed Boolean @default(false)
+  exited      Boolean @default(false)
 
   material_id String
-  Material   Material   @relation(fields: [material_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Material    Material @relation(fields: [material_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
@@ -400,14 +408,14 @@ model VolumeExit {
 }
 
 model SystemParam {
-  id            String  @id @unique @default(uuid())
+  id String @id @unique @default(uuid())
 
-  label         String @unique 
+  label String @unique
 
-  value         String?
+  value String?
 
-  created_at  DateTime @default(now()) @db.Timestamp
-  updated_at  DateTime @updatedAt @db.Timestamp
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
 
   @@map("system_params")
 }

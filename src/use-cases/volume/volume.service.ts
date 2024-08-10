@@ -7,7 +7,7 @@ import { VolumeTransformDTO } from './dto/volume-transform.dto';
 export class VolumeService {
 
     constructor(
-        public prismaService: PrismaService
+        public prismaService: PrismaService,
     ) { }
 
     async detail(data: VolumeDetailDTO): Promise<any> {
@@ -17,6 +17,7 @@ export class VolumeService {
             },
             select: {
                 id: true,
+                entry_id: true,
                 Entry: {
                     select: {
                         created_at: true,
@@ -33,6 +34,7 @@ export class VolumeService {
                         }
                     }
                 },
+                product_id: true,
                 Product: true,
                 size: true,
                 type: true,
@@ -65,17 +67,13 @@ export class VolumeService {
     async transform(data: VolumeTransformDTO, user_id: string) {
 
         try {
-            const current_volume = await this.prismaService.volume.findUnique({
-                where: {
-                    id: data.current_volume.id
-                },
-            })
+            const current_volume: any = await this.detail({ id: data.current_volume.id })
 
             const volumes = data.new_volumes;
             const remaining = (current_volume.amount * current_volume.volume) - (data.drawn);
             const amount = current_volume.amount - data.drawn_amount;
             const date = current_volume.updated_at.toISOString();
-            const material = await this.prismaService.material.findUnique({ where: { id: current_volume.material_id } });
+            let generated_history = '';
             let remove: string | null = '';
 
             if (date !== String(data.updated_at)) {
@@ -110,44 +108,83 @@ export class VolumeService {
                 }
             })
 
-            const log_1 = {
-                entry_id: current_volume.entry_id,
-                history: `Retirado ${data.drawn_amount} ${data.drawn_amount > 1 ? 'unidades' : 'unidade'} de ${data.current_volume.Location.name}.`
-            }
-
-            await this.log(log_1)
-
             if (update) {
-                volumes.map(async (vol) => {
+                const promises = volumes.map(async (vol) => {
 
                     const new_material = await this.prismaService.material.findUnique({ where: { id: vol.material_id } });
                     const new_location = await this.prismaService.location.findUnique({ where: { id: vol.location_id } });
 
-                    await this.prismaService.volume.create({
-                        data: {
-                            entry_id: current_volume.entry_id,
-                            product_id: current_volume.product_id,
-                            size: current_volume.size,
-                            type: current_volume.type,
-                            volume: new_material.volume,
-                            material_id: vol.material_id,
-                            location_id: vol.location_id,
-                            amount: vol.amount,
-                            transformed: true,
-                            exited: false,
-                            product_name: current_volume.product_name
+                    switch (data.movimentation_type) {
+                        case 'movimentation': {
+
+                            await this.prismaService.volume.create({
+                                data: {
+                                    entry_id: current_volume.entry_id,
+                                    product_id: current_volume.product_id,
+                                    size: current_volume.size,
+                                    type: current_volume.type,
+                                    volume: new_material.volume,
+                                    material_id: vol.material_id,
+                                    location_id: vol.location_id,
+                                    amount: vol.amount,
+                                    transformed: true,
+                                    exited: false,
+                                    product_name: current_volume.product_name,
+                                    exit_id: null
+                                }
+                            }).then(() => {
+                                generated_history += `[${new_location.name}] ${current_volume.product_name} • ${current_volume.type} ${current_volume.size} (⇧ ${vol.amount} ${vol.amount > 1 ? 'unidades' : 'unidade'} • ${new_material.volume}kg) • ${new_material.name}; `
+                                console.log(generated_history)
+                            })
+
+                            break;
                         }
-                    })
+                        case 'exit': {
 
-                    const log = {
-                        entry_id: current_volume.entry_id,
-                        history: `Retirado de ${data.current_volume.Location.name}, criado novo volume de ${vol.amount} ${vol.amount > 1 ? 'unidades' : 'unidade'} com material ${new_material.name} para ${new_location.name}.`
+                            const exit = await this.prismaService.exit.findUnique({
+                                where: {
+                                    id: vol.exit_id
+                                }
+                            })
+
+                            await this.prismaService.volume.create({
+                                data: {
+                                    entry_id: current_volume.entry_id,
+                                    product_id: current_volume.product_id,
+                                    size: current_volume.size,
+                                    type: current_volume.type,
+                                    volume: new_material.volume,
+                                    material_id: vol.material_id,
+                                    location_id: null,
+                                    amount: vol.amount,
+                                    transformed: true,
+                                    exited: true,
+                                    product_name: current_volume.product_name,
+                                    exit_id: vol.exit_id
+                                }
+                            }).then(() => {
+                                generated_history += `[S${exit.id}] ${current_volume.product_name} • ${current_volume.type} ${current_volume.size} (⇧ ${vol.amount} ${vol.amount > 1 ? 'unidades' : 'unidade'} • ${new_material.volume}kg) • ${new_material.name}; `
+                                console.log(generated_history)
+                            })
+
+                            break;
+                        }
+
                     }
-
-                    await this.log(log)
                 })
+
+                await Promise.all(promises);
             }
 
+            const log = {
+                entry_id: current_volume.entry_id,
+                origin_history: `[${current_volume.Location.name}] ${current_volume.product_name} • ${current_volume.type} • ${current_volume.size} (⇩ ${data.drawn_amount} ${data.drawn_amount > 1 ? 'unidades' : 'unidade'} • ${current_volume.volume}kg) • ${current_volume.Material.name}; Restante: ${amount} ${amount > 1 ? 'unidades' : 'unidade'}`,
+                dropped_amount: data.drawn_amount,
+                generated_history: generated_history,
+                user_id: user_id
+            }
+
+            await this.log(log)
 
             return {
                 message: 'O volume foi movimentado com sucesso'
@@ -158,13 +195,16 @@ export class VolumeService {
         }
     }
 
-    async log(data: { entry_id: number, history: string }) {
+    async log(data: { entry_id: number, origin_history: string, generated_history: string, dropped_amount: number, user_id: string }) {
 
         try {
             const log = await this.prismaService.volumeLog.create({
                 data: {
                     entry_id: data.entry_id,
-                    history: data.history
+                    origin_history: data.origin_history,
+                    generated_history: data.generated_history,
+                    dropped_amount: data.dropped_amount,
+                    user_id: data.user_id
                 }
             })
 
@@ -172,6 +212,56 @@ export class VolumeService {
         }
         catch (error) {
             return false;
+        }
+    }
+
+    async returnVolume(data: { volume_id: string, location_id: string }, user_id) {
+
+        const volume = await this.prismaService.volume.findUnique({
+            where: {
+                id: data.volume_id
+            },
+            select: {
+                entry_id: true,
+                exit_id: true,
+                product_name: true,
+                type: true,
+                size: true,
+                amount: true,
+                Material: true
+            }
+        })
+
+        const location = await this.prismaService.location.findUnique({
+            where: {
+                id: data.location_id
+            }
+        })
+
+
+        const update = await this.prismaService.volume.update({
+            where: {
+                id: data.volume_id
+            },
+            data: {
+                location_id: data.location_id,
+                exited: false,
+                exit_id: null
+            }
+        })
+        
+        const log = {
+            entry_id: volume.entry_id,
+            origin_history: `Retirou um volume da saída S${volume.exit_id}`,
+            dropped_amount: 0,
+            generated_history: `[${location.name}] ${volume.product_name} • ${volume.type} ${volume.size} (⇧ ${volume.amount} ${volume.amount > 1 ? 'unidades' : 'unidade'} • ${volume.Material.volume}kg) • ${volume.Material.name}; `,
+            user_id: user_id
+        }
+
+        await this.log(log)
+
+        return {
+            message: 'Volume retornado com sucesso'
         }
     }
 }

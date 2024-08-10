@@ -20,4 +20,9 @@ export class VolumeController {
     async create(@Body() data: VolumeTransformDTO,  @User() user_id: string) {
         return await this.volumeService.transform(data, user_id)
     }
+
+    @Post('/return')
+    async returnVolume(@Body() data: { volume_id: string, location_id: string },  @User() user_id: string) {
+        return await this.volumeService.returnVolume(data, user_id)
+    }
 }

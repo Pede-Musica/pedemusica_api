@@ -7,13 +7,17 @@ import { RegisterPaginateDTO } from './dto/register-list.dto';
 import { Prisma } from '@prisma/client';
 import { RegisterDetailDTO } from './dto/register-detail.dto';
 import { NotFoundError } from 'rxjs';
+import { ExitStatus } from 'src/shared/constants/exit-types.enum';
+import { ExitCreateDTO } from './dto/exit.create.dto';
+import { VolumeService } from '../volume/volume.service';
 
 @Injectable()
 export class RegisterService {
 
     constructor(
         public prismaService: PrismaService,
-        public booleanHandlerService: BooleanHandlerService
+        public booleanHandlerService: BooleanHandlerService,
+        public volumeService: VolumeService
     ) { }
 
     async createEntry(data: EntryCreateDTO, user_id: string) {
@@ -43,7 +47,7 @@ export class RegisterService {
                 }
             })
 
-            products.map(async (product: any) => {
+            const promises = products.map(async (product: any) => {
 
                 product?.volumes?.map(async (volume: any) => {
 
@@ -78,8 +82,41 @@ export class RegisterService {
 
             })
 
+            await Promise.all(promises);
+
             return {
                 message: 'Entrada feita com sucesso',
+            };
+        }
+        catch (error) {
+            throw new ConflictException(error.message)
+        }
+    }
+
+    async createExit(data: ExitCreateDTO, user_id: string) {
+
+        try {
+
+            const newRegister = await this.prismaService.register.create({
+                data: {
+                    type: RegisterType.exit
+                }
+            })
+
+            const exit = await this.prismaService.exit.create({
+                data: {
+                    register_id: newRegister.id,
+                    user_id: user_id,
+                    exit_at: data.exit_at,
+                    observation: data.observation,
+                    exit_type: data.exit_type,
+                    person_id: data.customer.id,
+                    status: ExitStatus.ongoing
+                }
+            })
+
+            return {
+                message: 'Saída criada com sucesso',
             };
         }
         catch (error) {
@@ -221,8 +258,19 @@ export class RegisterService {
                                 Location: true,
                             }
                         },
-                        VolumeExit: true,
                         VolumeLog: {
+                            select:{    
+                                id: true,
+                                created_at: true,
+                                dropped_amount: true,
+                                generated_history: true,
+                                origin_history: true,
+                                User: {
+                                    select: {
+                                        Person: true
+                                    }
+                                }
+                            },
                             orderBy:{
                                 created_at: 'asc'
                             }
@@ -244,9 +292,136 @@ export class RegisterService {
     async listExit() {
 
         const exits = await this.prismaService.exit.findMany({
+            select: {
+                id: true,
+                created_at: true,
+                Person: true,
+                User: {
+                    select: {
+                        Person: true
+                    }
+                },
+                exit_at: true,
+                observation: true,
+                exit_type: true,
+                status: true
+            },
             where:{
-                
+                status: ExitStatus.ongoing
             }
         })
+
+        return exits;
+    }
+
+    async detailExit(data: {id: string}) {
+
+        const exit_id = Number(data.id)
+        
+        const exit = await this.prismaService.exit.findUnique({
+            where: {
+                id: exit_id
+            },
+            select: {
+                id: true,
+                created_at: true,
+                Person: true,
+                User: {
+                    select: {
+                        Person: true
+                    }
+                },
+                exit_at: true,
+                observation: true,
+                exit_type: true,
+                status: true,
+                Volume: {
+                    select:{
+                        id: true,
+                        entry_id: true,
+                        Entry: {
+                            select:{
+                                Register: true,
+                                User: {
+                                    select: {
+                                        Person: true
+                                    }
+                                },
+                                Producer: {
+                                    select: {
+                                        Person: true
+                                    }
+                                }
+                            }
+                        },
+                        exit_id: true,
+                        size: true,
+                        type: true,
+                        amount: true,
+                        volume: true,
+                        transformed: true,
+                        exited: true,
+                        Material: true,
+                        created_at:true,
+                        Product: true,
+                        product_name: true
+                    }
+                }
+            },
+        })
+
+        return exit;
+    }
+
+    async closeExit(data: { exit_id: number, date: string}, user_id: string) {
+
+        const exit = await this.prismaService.exit.findUnique({
+            where: {
+                id: data.exit_id
+            },
+            select: {
+                register_id: true,
+                Volume: true
+            }
+        })
+
+
+        const update = await this.prismaService.exit.update({
+            where:{
+                id: data.exit_id
+            },
+            data: {
+                exit_at: data.date,
+                status: ExitStatus.closed
+            }
+        })
+
+        const volumes = exit.Volume;
+
+        const logs = volumes.map(async (vol) => {
+
+            const material = await this.prismaService.material.findUnique({
+                where: {
+                    id: vol.material_id
+                }
+            })
+            
+            const log = {
+                entry_id: vol.entry_id,
+                origin_history: `Volume incluso na saída S${data.exit_id}`,
+                dropped_amount: 0,
+                generated_history: `${vol.product_name} • ${vol.type} ${vol.size} (⇧ ${vol.amount} ${vol.amount > 1 ? 'unidades' : 'unidade'} • ${vol.volume}kg) • ${material.name};` ,
+                user_id: user_id
+            }
+    
+            await this.volumeService.log(log)
+
+        })
+
+        await Promise.all(logs)
+
+        return {
+            message: 'Saída finalizada com sucesso'
+        }
     }
 }
