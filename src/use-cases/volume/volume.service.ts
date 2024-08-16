@@ -93,20 +93,12 @@ export class VolumeService {
                 throw new NotFoundException('Os dados deste volumes estão desatualizados')
             }
 
-            if (remaining !== data.remaining) {
-                throw new NotFoundException('Volume restante inválido')
-            }
-
-            if (data.remaining < 0) {
-                throw new ConflictException('O volume restante não pode ser negativo')
-            }
-
             if (data.drawn_amount < 0) {
                 throw new ConflictException('O volume a ser retirado não pode ser negativo')
             }
 
             if (remaining === 0) {
-                remove = null
+                remove = null;
             } else {
                 remove = current_volume.location_id
             }
@@ -122,6 +114,17 @@ export class VolumeService {
             })
 
             if (update) {
+
+                const log = {
+                    entry_id: current_volume.entry_id,
+                    origin_history: `[${current_volume.Location.name}] Retirado ⇩ ${data.drawn_amount} ${data.drawn_amount > 1 ? 'unidades' : 'unidade'} • ${current_volume.volume}kg de ${current_volume.product_name} • ${current_volume.type} • ${current_volume.size}`,
+                    dropped_amount: data.drawn_amount,
+                    generated_history: '',
+                    user_id: user_id
+                }
+    
+                await this.log(log)
+
                 const promises = volumes.map(async (vol) => {
 
                     const new_material = await this.prismaService.material.findUnique({ where: { id: vol?.material_id } });
@@ -153,9 +156,17 @@ export class VolumeService {
                                     product_name: current_volume.product_name,
                                     exit_id: null
                                 }
-                            }).then(() => {
-                                generated_history += `[${new_location.name}] ${current_volume.product_name} • ${vol.type} ${vol.size} (⇧ ${vol.amount} ${vol.amount > 1 ? 'unidades' : 'unidade'} • ${new_material.volume}kg) • ${new_material.name}; `
-                                console.log(generated_history)
+                            }).then(async () => {
+
+                                const log = {
+                                    entry_id: current_volume.entry_id,
+                                    origin_history: `Novo volume: Alocado em [${new_location.name}] ${current_volume.product_name} • ${vol.type} ${vol.size} (⇧ ${vol.amount} ${vol.amount > 1 ? 'unidades' : 'unidade'})`,
+                                    dropped_amount: data.drawn_amount,
+                                    generated_history: '',
+                                    user_id: user_id
+                                }
+                    
+                                await this.log(log)
                             })
 
                             break;
@@ -183,9 +194,17 @@ export class VolumeService {
                                     product_name: current_volume.product_name,
                                     exit_id: vol.exit_id
                                 }
-                            }).then(() => {
-                                generated_history += `[S${exit.id}] ${current_volume.product_name} • ${vol.type} ${vol.size} (⇧ ${vol.amount} ${vol.amount > 1 ? 'unidades' : 'unidade'} • ${new_material.volume}kg) • ${new_material.name}; `
-                                console.log(generated_history)
+                            }).then(async () => {
+
+                                const log = {
+                                    entry_id: current_volume.entry_id,
+                                    origin_history: `Alocado para saída: [S${exit.id}] ${current_volume.product_name} • ${vol.type} ${vol.size} (⇧ ${vol.amount} ${vol.amount > 1 ? 'unidades' : 'unidade'})`,
+                                    dropped_amount: data.drawn_amount,
+                                    generated_history: '',
+                                    user_id: user_id
+                                }
+                    
+                                await this.log(log)
                             })
 
                             break;
@@ -196,16 +215,6 @@ export class VolumeService {
 
                 await Promise.all(promises);
             }
-
-            const log = {
-                entry_id: current_volume.entry_id,
-                origin_history: `[${current_volume.Location.name}] ${current_volume.product_name} • ${current_volume.type} • ${current_volume.size} (⇩ ${data.drawn_amount} ${data.drawn_amount > 1 ? 'unidades' : 'unidade'} • ${current_volume.volume}kg) • ${current_volume.Material.name}; Restante: ${amount} ${amount > 1 ? 'unidades' : 'unidade'}`,
-                dropped_amount: data.drawn_amount,
-                generated_history: generated_history,
-                user_id: user_id
-            }
-
-            await this.log(log)
 
             return {
                 message: 'O volume foi movimentado com sucesso'
