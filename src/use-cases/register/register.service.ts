@@ -111,7 +111,7 @@ export class RegisterService {
                     observation: data.observation,
                     exit_type: data.exit_type,
                     person_id: data.customer.id,
-                    status: ExitStatus.ongoing
+                    status: ExitStatus.ongoing,
                 }
             })
 
@@ -147,7 +147,11 @@ export class RegisterService {
                         VolumeEnter: true,
                         Producer: {
                             select: {
-                                Person: true
+                                Person: {
+                                    select: {
+                                        name: true
+                                    }
+                                }
                             }
                         },
                         User: {
@@ -161,7 +165,37 @@ export class RegisterService {
                         }
                     }
                 },
-                Exit: true,
+                Exit: {
+                    select: {
+                        id: true,
+                        observation: true,
+                        Volume: true,
+                        created_at: true,
+                        Register: {
+                            select: {
+                                Entry: {
+                                    select: {
+                                        Producer: {
+                                            select: {
+                                                Person: true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        User: {
+                            select: {
+                                Person: {
+                                    select: {
+                                        name: true
+                                    }
+                                }
+                            }
+                        },
+                        Person: true
+                    }
+                },
             },
             take: perPage,
             skip: offset,
@@ -278,7 +312,43 @@ export class RegisterService {
                     }
                     
                 },
-                Exit: true,
+                Exit: {
+                    select:{
+                        id: true,
+                        Person: true,
+                        User: {
+                            select:{
+                                Person: true
+                            }
+                        },
+                        Volume: {
+                            select: {
+                                id: true,
+                                created_at: true,
+                                entry_id: true,
+                                Entry: {
+                                    select: {
+                                        Register: true,
+                                        Producer: {
+                                            select: {
+                                                Person: true
+                                            }
+                                        },
+                                    }
+                                },
+                                Product: true,
+                                Material: true,
+                                product_name: true,
+                                amount: true,
+                                size: true,
+                                type: true,
+                                volume: true,
+                                Location: true,
+                            }
+                        },
+                    }
+                },
+                
             }
         })
 
@@ -373,7 +443,7 @@ export class RegisterService {
         return exit;
     }
 
-    async closeExit(data: { exit_id: number, date: string}, user_id: string) {
+    async closeExit(data: { exit_id: number, date: string, invoice?: string}, user_id: string) {
 
         const exit = await this.prismaService.exit.findUnique({
             where: {
@@ -392,7 +462,8 @@ export class RegisterService {
             },
             data: {
                 exit_at: data.date,
-                status: ExitStatus.closed
+                status: ExitStatus.closed,
+                invoice: data.invoice
             }
         })
 

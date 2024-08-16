@@ -235,7 +235,7 @@ model Entry {
   producer_id String
   Producer    Producer @relation(fields: [producer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  field    String
+  field    String?
   entry_at DateTime @default(now()) @db.Timestamp
 
   observation String? @db.Text()
@@ -269,6 +269,8 @@ model Exit {
   observation String?  @db.Text()
 
   status String
+
+  invoice    String?  @db.Text()
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
@@ -309,14 +311,14 @@ model Volume {
   product_name String
   size         String
   type         String
-  amount       Int    @default(0) @db.Integer()
+  amount       Float    @default(0)
   volume       Float  @default(0)
 
   transformed Boolean @default(false)
   exited      Boolean @default(false)
 
-  material_id String
-  Material    Material @relation(fields: [material_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  material_id String?
+  Material    Material? @relation(fields: [material_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   location_id String?
   Location    Location? @relation(fields: [location_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -362,11 +364,11 @@ model VolumeEnter {
   product_name String
   size         String
   type         String
-  amount       Int    @default(0) @db.Integer()
+  amount       Float    @default(0)
   volume       Float  @default(0)
 
-  material_id String
-  Material    Material @relation(fields: [material_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  material_id String?
+  Material    Material? @relation(fields: [material_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   location_id String?
   Location    Location? @relation(fields: [location_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -398,8 +400,8 @@ model VolumeExit {
   transformed Boolean @default(false)
   exited      Boolean @default(false)
 
-  material_id String
-  Material    Material @relation(fields: [material_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  material_id String?
+  Material    Material? @relation(fields: [material_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp

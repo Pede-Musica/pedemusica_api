@@ -6,7 +6,7 @@ export class EntryCreateDTO {
     @IsString()
     entry_at: string;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
     field: string;
 

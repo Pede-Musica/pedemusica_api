@@ -25,7 +25,13 @@ export class VolumeService {
                         field: true,
                         id: true,
                         observation: true,
-                        Producer: true,
+                        Producer: {
+                            select: {
+                                Person: true,
+                                ggn: true,
+                                cad_pro: true
+                            }
+                        },
                         Register: true,
                         User: {
                             select: {
@@ -35,7 +41,14 @@ export class VolumeService {
                     }
                 },
                 product_id: true,
-                Product: true,
+                Product: {
+                    select:{
+                        name: true,
+                        isActive: true,
+                        ProductSize: true,
+                        ProductType: true,
+                    }
+                },
                 size: true,
                 type: true,
                 volume: true,
@@ -111,8 +124,16 @@ export class VolumeService {
             if (update) {
                 const promises = volumes.map(async (vol) => {
 
-                    const new_material = await this.prismaService.material.findUnique({ where: { id: vol.material_id } });
-                    const new_location = await this.prismaService.location.findUnique({ where: { id: vol.location_id } });
+                    const new_material = await this.prismaService.material.findUnique({ where: { id: vol?.material_id } });
+                    const new_location = await this.prismaService.location.findUnique({ where: { id: vol?.location_id } });
+                    let volume = 0;
+
+                    if(vol.single) {
+                        volume = vol.volume;
+                        vol.material_id = null;
+                    } else {
+                        volume = new_material.volume;
+                    }
 
                     switch (data.movimentation_type) {
                         case 'movimentation': {
@@ -121,9 +142,9 @@ export class VolumeService {
                                 data: {
                                     entry_id: current_volume.entry_id,
                                     product_id: current_volume.product_id,
-                                    size: current_volume.size,
-                                    type: current_volume.type,
-                                    volume: new_material.volume,
+                                    size: vol.size,
+                                    type: vol.type,
+                                    volume: volume,
                                     material_id: vol.material_id,
                                     location_id: vol.location_id,
                                     amount: vol.amount,
@@ -133,7 +154,7 @@ export class VolumeService {
                                     exit_id: null
                                 }
                             }).then(() => {
-                                generated_history += `[${new_location.name}] ${current_volume.product_name} • ${current_volume.type} ${current_volume.size} (⇧ ${vol.amount} ${vol.amount > 1 ? 'unidades' : 'unidade'} • ${new_material.volume}kg) • ${new_material.name}; `
+                                generated_history += `[${new_location.name}] ${current_volume.product_name} • ${vol.type} ${vol.size} (⇧ ${vol.amount} ${vol.amount > 1 ? 'unidades' : 'unidade'} • ${new_material.volume}kg) • ${new_material.name}; `
                                 console.log(generated_history)
                             })
 
@@ -151,9 +172,9 @@ export class VolumeService {
                                 data: {
                                     entry_id: current_volume.entry_id,
                                     product_id: current_volume.product_id,
-                                    size: current_volume.size,
-                                    type: current_volume.type,
-                                    volume: new_material.volume,
+                                    size: vol.size,
+                                    type: vol.type,
+                                    volume: volume,
                                     material_id: vol.material_id,
                                     location_id: null,
                                     amount: vol.amount,
@@ -163,7 +184,7 @@ export class VolumeService {
                                     exit_id: vol.exit_id
                                 }
                             }).then(() => {
-                                generated_history += `[S${exit.id}] ${current_volume.product_name} • ${current_volume.type} ${current_volume.size} (⇧ ${vol.amount} ${vol.amount > 1 ? 'unidades' : 'unidade'} • ${new_material.volume}kg) • ${new_material.name}; `
+                                generated_history += `[S${exit.id}] ${current_volume.product_name} • ${vol.type} ${vol.size} (⇧ ${vol.amount} ${vol.amount > 1 ? 'unidades' : 'unidade'} • ${new_material.volume}kg) • ${new_material.name}; `
                                 console.log(generated_history)
                             })
 

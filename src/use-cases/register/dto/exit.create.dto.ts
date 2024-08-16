@@ -17,6 +17,10 @@ export class ExitCreateDTO {
     @IsNotEmpty()
     @IsString()
     exit_type: any;
+
+    @IsOptional()
+    @IsString()
+    invoice: string;
 }
 
 
