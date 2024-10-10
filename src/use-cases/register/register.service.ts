@@ -49,7 +49,7 @@ export class RegisterService {
 
             const promises = products.map(async (product: any) => {
 
-                product?.volumes?.map(async (volume: any) => {
+                const newVolumes = product?.volumes?.map(async (volume: any) => {
 
                     await this.prismaService.volume.create({
                         data: {
@@ -57,6 +57,7 @@ export class RegisterService {
                             product_id: product.id,
                             product_name: product.name,
                             amount: volume.amount,
+                            weight: volume.weight,
                             size: volume.size,
                             type: volume.type,
                             volume: volume.material.volume,
@@ -71,6 +72,7 @@ export class RegisterService {
                             product_id: product.id,
                             product_name: product.name,
                             amount: volume.amount,
+                            weight: volume.weight,
                             size: volume.size,
                             type: volume.type,
                             volume: volume.material.volume,
@@ -79,6 +81,8 @@ export class RegisterService {
                         }
                     })
                 })
+
+                await Promise.all(newVolumes);
 
             })
 
@@ -136,7 +140,7 @@ export class RegisterService {
         const offset = perPage * (page - 1);
 
         const registers = await this.prismaService.register.findMany({
-            select:{
+            select: {
                 id: true,
                 type: true,
                 created_at: true,
@@ -214,7 +218,7 @@ export class RegisterService {
         return response;
     }
 
-    async detail(data: RegisterDetailDTO){
+    async detail(data: RegisterDetailDTO) {
 
         const register = await this.prismaService.register.findUnique({
             where: {
@@ -226,7 +230,7 @@ export class RegisterService {
                 created_at: true,
                 updated_at: true,
                 Entry: {
-                    select:{
+                    select: {
                         id: true,
                         created_at: true,
                         field: true,
@@ -237,8 +241,8 @@ export class RegisterService {
                                 Person: true
                             }
                         },
-                        User:{
-                            select:{
+                        User: {
+                            select: {
                                 Person: true
                             }
                         },
@@ -261,6 +265,7 @@ export class RegisterService {
                                 Material: true,
                                 product_name: true,
                                 amount: true,
+                                weight: true,
                                 size: true,
                                 type: true,
                                 volume: true,
@@ -286,14 +291,18 @@ export class RegisterService {
                                 Material: true,
                                 product_name: true,
                                 amount: true,
+                                weight: true,
                                 size: true,
                                 type: true,
                                 volume: true,
                                 Location: true,
+                            },
+                            where: {
+                                deleted_at: null
                             }
                         },
                         VolumeLog: {
-                            select:{    
+                            select: {
                                 id: true,
                                 created_at: true,
                                 dropped_amount: true,
@@ -305,19 +314,19 @@ export class RegisterService {
                                     }
                                 }
                             },
-                            orderBy:{
+                            orderBy: {
                                 created_at: 'asc'
                             }
                         }
                     }
-                    
+
                 },
                 Exit: {
-                    select:{
+                    select: {
                         id: true,
                         Person: true,
                         User: {
-                            select:{
+                            select: {
                                 Person: true
                             }
                         },
@@ -340,19 +349,23 @@ export class RegisterService {
                                 Material: true,
                                 product_name: true,
                                 amount: true,
+                                weight: true,
                                 size: true,
                                 type: true,
                                 volume: true,
                                 Location: true,
+                            },
+                            where: {
+                                deleted_at: null
                             }
                         },
                     }
                 },
-                
+
             }
         })
 
-        if(register){
+        if (register) {
             return register
         } else {
             throw new NotFoundException('Registro não encontrado')
@@ -376,7 +389,7 @@ export class RegisterService {
                 exit_type: true,
                 status: true
             },
-            where:{
+            where: {
                 status: ExitStatus.ongoing
             }
         })
@@ -384,10 +397,10 @@ export class RegisterService {
         return exits;
     }
 
-    async detailExit(data: {id: string}) {
+    async detailExit(data: { id: string }) {
 
         const exit_id = Number(data.id)
-        
+
         const exit = await this.prismaService.exit.findUnique({
             where: {
                 id: exit_id
@@ -406,11 +419,11 @@ export class RegisterService {
                 exit_type: true,
                 status: true,
                 Volume: {
-                    select:{
+                    select: {
                         id: true,
                         entry_id: true,
                         Entry: {
-                            select:{
+                            select: {
                                 Register: true,
                                 User: {
                                     select: {
@@ -428,13 +441,17 @@ export class RegisterService {
                         size: true,
                         type: true,
                         amount: true,
+                        weight: true,
                         volume: true,
                         transformed: true,
                         exited: true,
                         Material: true,
-                        created_at:true,
+                        created_at: true,
                         Product: true,
                         product_name: true
+                    },
+                    where: {
+                        deleted_at: null
                     }
                 }
             },
@@ -443,7 +460,7 @@ export class RegisterService {
         return exit;
     }
 
-    async closeExit(data: { exit_id: number, date: string, invoice?: string}, user_id: string) {
+    async closeExit(data: { exit_id: number, date: string, invoice?: string }, user_id: string) {
 
         const exit = await this.prismaService.exit.findUnique({
             where: {
@@ -457,7 +474,7 @@ export class RegisterService {
 
 
         const update = await this.prismaService.exit.update({
-            where:{
+            where: {
                 id: data.exit_id
             },
             data: {
@@ -476,15 +493,15 @@ export class RegisterService {
                     id: vol.material_id
                 }
             })
-            
+
             const log = {
                 entry_id: vol.entry_id,
                 origin_history: `Volume incluso na saída S${data.exit_id}`,
-                dropped_amount: 0,
-                generated_history: `${vol.product_name} • ${vol.type} ${vol.size} (⇧ ${vol.amount} ${vol.amount > 1 ? 'unidades' : 'unidade'} • ${vol.volume}kg) • ${material.name};` ,
+                dropped_weight: 0,
+                generated_history: `${vol.product_name} • ${vol.type} ${vol.size} (⇧ ${vol.amount} ${vol.amount > 1 ? 'unidades' : 'unidade'} • ${vol.volume}kg) • ${material.name};`,
                 user_id: user_id
             }
-    
+
             await this.volumeService.log(log)
 
         })

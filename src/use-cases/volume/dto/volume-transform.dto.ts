@@ -19,7 +19,7 @@ export class VolumeTransformDTO {
 
     @IsNotEmpty()
     @IsNumber()
-    drawn_amount: number;
+    drawn_weight: number;
 
     @IsNotEmpty()
     @IsString()

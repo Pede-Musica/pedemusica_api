@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { VolumeService } from './volume.service';
 import { VolumeDetailDTO } from './dto/volume-detail.dto';
 import { User } from 'src/decorators/user.decorator';
@@ -24,5 +24,10 @@ export class VolumeController {
     @Post('/return')
     async returnVolume(@Body() data: { volume_id: string, location_id: string },  @User() user_id: string) {
         return await this.volumeService.returnVolume(data, user_id)
+    }
+
+    @Delete('/delete/:id')
+    async delete(@Param() data: { id: string }) {
+        return await this.volumeService.delete(data.id)
     }
 }

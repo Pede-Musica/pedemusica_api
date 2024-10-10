@@ -312,6 +312,7 @@ model Volume {
   size         String
   type         String
   amount       Float    @default(0)
+  weight       Float    @default(0)
   volume       Float  @default(0)
 
   transformed Boolean @default(false)
@@ -328,6 +329,7 @@ model Volume {
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
+  deleted_at DateTime?
 
 
   @@map("volumes")
@@ -341,6 +343,7 @@ model VolumeLog {
 
   origin_history      String? @db.Text()
   dropped_amount      Float  @default(0)
+  dropped_weight      Float  @default(0)
   generated_history   String? @db.Text()
 
   user_id String
@@ -365,6 +368,7 @@ model VolumeEnter {
   size         String
   type         String
   amount       Float    @default(0)
+  weight       Float    @default(0)
   volume       Float  @default(0)
 
   material_id String?

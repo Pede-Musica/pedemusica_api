@@ -133,6 +133,9 @@ export class LocationService {
                         size: true,
                         type: true,
                         volume: true,
+                    },
+                    where: {
+                        deleted_at: null
                     }
                 } 
             },
@@ -243,9 +246,13 @@ export class LocationService {
                         Material: true,
                         product_name: true,
                         amount: true,
+                        weight: true,
                         size: true,
                         type: true,
                         volume: true,
+                    },
+                    where: {
+                        deleted_at: null
                     }
                 },
             },

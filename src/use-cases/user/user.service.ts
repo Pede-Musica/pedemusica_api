@@ -1,14 +1,10 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {  Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/infra/database/prisma.service';
 import { AuthDTO } from './dto/auth.dto';
 import * as bcrypt from 'bcryptjs';
 import { jwt } from '../../configs/env';
 import { UserCreateDTO } from './dto/user-create.dto';
-import { UserPaginateDTO } from './dto/user-paginate.dto';
-import { Prisma } from '@prisma/client';
-import { FindUserByIdDTO } from './dto/find-user-by-id.dto';
-import { UserDTO } from './dto/user.dto';
 import { MailService } from 'src/external/mailer/mail.service';
 import { UserSetPasswordDTO } from './dto/user-set-password';
 import { ValidateToken } from './dto/validate-token.dto';

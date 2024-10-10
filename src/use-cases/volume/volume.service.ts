@@ -61,6 +61,7 @@ export class VolumeService {
                     }
                 },
                 amount: true,
+                weight: true,
                 transformed: true,
                 exited: true,
                 product_name: true,
@@ -83,18 +84,16 @@ export class VolumeService {
             const current_volume: any = await this.detail({ id: data.current_volume.id })
 
             const volumes = data.new_volumes;
-            const remaining = (current_volume.amount * current_volume.volume) - (data.drawn);
-            const amount = current_volume.amount - data.drawn_amount;
+            const remaining = current_volume.weight- data.drawn_weight;
             const date = current_volume.updated_at.toISOString();
-            let generated_history = '';
             let remove: string | null = '';
 
             if (date !== String(data.updated_at)) {
                 throw new NotFoundException('Os dados deste volumes estão desatualizados')
             }
 
-            if (data.drawn_amount < 0) {
-                throw new ConflictException('O volume a ser retirado não pode ser negativo')
+            if (data.drawn_weight < 0) {
+                throw new ConflictException('O peso a ser retirado não pode ser negativo')
             }
 
             if (remaining === 0) {
@@ -108,7 +107,7 @@ export class VolumeService {
                     id: data.current_volume.id
                 },
                 data: {
-                    amount: amount,
+                    weight: remaining,
                     location_id: remove
                 }
             })
@@ -117,8 +116,8 @@ export class VolumeService {
 
                 const log = {
                     entry_id: current_volume.entry_id,
-                    origin_history: `[${current_volume.Location.name}] Retirado ⇩ ${data.drawn_amount} ${data.drawn_amount > 1 ? 'unidades' : 'unidade'} • ${current_volume.volume}kg de ${current_volume.product_name} • ${current_volume.type} • ${current_volume.size}`,
-                    dropped_amount: data.drawn_amount,
+                    origin_history: `[${current_volume.Location.name}] Retirado ⇩ ${data.drawn_weight} kg • ${current_volume.volume}kg de ${current_volume.product_name} • ${current_volume.type} • ${current_volume.size}`,
+                    dropped_weight: data.drawn_weight,
                     generated_history: '',
                     user_id: user_id
                 }
@@ -150,7 +149,8 @@ export class VolumeService {
                                     volume: volume,
                                     material_id: vol.material_id,
                                     location_id: vol.location_id,
-                                    amount: vol.amount,
+                                    amount: 0,
+                                    weight: vol.weight,
                                     transformed: true,
                                     exited: false,
                                     product_name: current_volume.product_name,
@@ -161,7 +161,7 @@ export class VolumeService {
                                 const log = {
                                     entry_id: current_volume.entry_id,
                                     origin_history: `Novo volume: Alocado em [${new_location.name}] ${current_volume.product_name} • ${vol.type} ${vol.size} (⇧ ${vol.amount} ${vol.amount > 1 ? 'unidades' : 'unidade'})`,
-                                    dropped_amount: data.drawn_amount,
+                                    dropped_weight: data.drawn_weight,
                                     generated_history: '',
                                     user_id: user_id
                                 }
@@ -188,7 +188,8 @@ export class VolumeService {
                                     volume: volume,
                                     material_id: vol.material_id,
                                     location_id: null,
-                                    amount: vol.amount,
+                                    amount: 0,
+                                    weight: vol.weight,
                                     transformed: true,
                                     exited: true,
                                     product_name: current_volume.product_name,
@@ -199,7 +200,7 @@ export class VolumeService {
                                 const log = {
                                     entry_id: current_volume.entry_id,
                                     origin_history: `Alocado para saída: [S${exit.id}] ${current_volume.product_name} • ${vol.type} ${vol.size} (⇧ ${vol.amount} ${vol.amount > 1 ? 'unidades' : 'unidade'})`,
-                                    dropped_amount: data.drawn_amount,
+                                    dropped_weight: data.drawn_weight,
                                     generated_history: '',
                                     user_id: user_id
                                 }
@@ -225,7 +226,7 @@ export class VolumeService {
         }
     }
 
-    async log(data: { entry_id: number, origin_history: string, generated_history: string, dropped_amount: number, user_id: string }) {
+    async log(data: { entry_id: number, origin_history: string, generated_history: string, dropped_weight: number, user_id: string }) {
 
         try {
             const log = await this.prismaService.volumeLog.create({
@@ -233,7 +234,7 @@ export class VolumeService {
                     entry_id: data.entry_id,
                     origin_history: data.origin_history,
                     generated_history: data.generated_history,
-                    dropped_amount: data.dropped_amount,
+                    dropped_weight: data.dropped_weight,
                     user_id: data.user_id
                 }
             })
@@ -283,7 +284,7 @@ export class VolumeService {
         const log = {
             entry_id: volume.entry_id,
             origin_history: `Retirou um volume da saída S${volume.exit_id}`,
-            dropped_amount: 0,
+            dropped_weight: 0,
             generated_history: `[${location.name}] ${volume.product_name} • ${volume.type} ${volume.size} (⇧ ${volume.amount} ${volume.amount > 1 ? 'unidades' : 'unidade'} • ${volume.Material.volume}kg) • ${volume.Material.name}; `,
             user_id: user_id
         }
@@ -292,6 +293,27 @@ export class VolumeService {
 
         return {
             message: 'Volume retornado com sucesso'
+        }
+    }
+
+    async delete(id: string) {
+
+        try {
+            const volume = await this.prismaService.volume.update({
+                where: {
+                    id: id
+                },
+                data: {
+                    deleted_at: new Date()
+                }
+            });
+
+            return {
+                message: 'Volume excluído com sucesso'
+            }
+        }
+        catch(error) {
+            throw new ConflictException(error.message)
         }
     }
 }
