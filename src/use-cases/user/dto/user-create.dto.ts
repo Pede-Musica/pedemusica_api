@@ -3,7 +3,7 @@ import { IsBoolean, IsEmail, IsInt, IsNotEmpty, IsOptional, IsString } from '@ne
 export class UserCreateDTO {
     @IsOptional()
     @IsString()
-    id: string;
+    id?: string;
 
     @IsNotEmpty()
     @IsString()

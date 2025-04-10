@@ -8,6 +8,7 @@ import { PersonDetailDTO } from './dto/person-detail.dto';
 import { UserService } from '../user/user.service';
 import { PersonPaginateDTO } from './dto/person-paginate.dto';
 import { BooleanHandlerService } from 'src/shared/handlers/boolean.handler';
+import { UserCreateDTO } from '../user/dto/user-create.dto';
 
 
 @Injectable()
@@ -88,9 +89,6 @@ export class PersonService {
 
         try {
 
-            const user = data.user;
-            const producer = data.producer;
-
             const person: any = await this.prismaService.person.create({
                 data: {
                     name: data.name,
@@ -108,15 +106,20 @@ export class PersonService {
                 }
             })
 
+            const user = {
+                user: data.email, 
+                isActive: true,
+            }
+
             if (data.isUser) {
                 const checkUser = await this.prismaService.user.findUnique({
                     where: {
-                        user: user.user
+                        user: data.email,
                     }
                 })
 
                 if (checkUser) {
-                    throw new ConflictException(`Usuário ${user.user} já existe`);
+                    throw new ConflictException(`Usuário ${data.email} já existe`);
                 }
 
                 const newUser = await this._userService.create(user, person);
@@ -125,14 +128,14 @@ export class PersonService {
             await this._logService.log({
                 user_id: user_id,
                 type: LogType.person,
-                action: 'Criou uma pessoa.',
+                action: 'Criou um usuário',
                 before: null,
                 after: person.toString() ?? null
             })
 
 
             return {
-                message: 'Pessoa criada com sucesso',
+                message: 'Usuário criado com sucesso',
             };
         }
         catch (error) {
