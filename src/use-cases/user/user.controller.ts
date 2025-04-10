@@ -3,9 +3,6 @@ import { Public } from 'src/decorators/auth-guard.decorator';
 import { UserCreateDTO } from './dto/user-create.dto';
 import { AuthDTO } from './dto/auth.dto';
 import { UserService } from './user.service';
-import { User } from 'src/decorators/user.decorator';
-import { UserPaginateDTO } from './dto/user-paginate.dto';
-import { FindUserByIdDTO } from './dto/find-user-by-id.dto';
 import { UserSetPasswordDTO } from './dto/user-set-password';
 import { ValidateToken } from './dto/validate-token.dto';
 

@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "volumes" ADD COLUMN     "weight" DOUBLE PRECISION NOT NULL DEFAULT 0;

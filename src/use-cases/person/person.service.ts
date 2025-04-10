@@ -1,16 +1,11 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/infra/database/prisma.service';
 import { Prisma } from '@prisma/client';
-import { ProducerPaginateDTO } from '../producer/dto/producer-paginate.dto';
 import { LogService } from '../log/log.service';
 import { LogType } from 'src/shared/constants/log.enum';
 import { PersonCreateDTO } from './dto/person-create.dto';
 import { PersonDetailDTO } from './dto/person-detail.dto';
-import { JwtService } from '@nestjs/jwt';
-import { MailService } from 'src/external/mailer/mail.service';
-import { jwt } from '../../configs/env';
 import { UserService } from '../user/user.service';
-import { ProducerService } from '../producer/producer.service';
 import { PersonPaginateDTO } from './dto/person-paginate.dto';
 import { BooleanHandlerService } from 'src/shared/handlers/boolean.handler';
 
@@ -22,7 +17,6 @@ export class PersonService {
     constructor(
         public prismaService: PrismaService,
         private _logService: LogService,
-        private _producerService: ProducerService,
         private _userService: UserService,
         public booleanHandlerService: BooleanHandlerService
     ) { }
@@ -59,8 +53,6 @@ export class PersonService {
                 sysAdmin: true,
 
                 User: true,
-                Customer: true,
-                Producer: true
             },
             where: {
                 name: {
@@ -130,11 +122,6 @@ export class PersonService {
                 const newUser = await this._userService.create(user, person);
             }
 
-            if (data.isProducer) {
-                const newProducer = await this._producerService.create(producer, person.id);
-            }
-
-
             await this._logService.log({
                 user_id: user_id,
                 type: LogType.person,
@@ -176,8 +163,6 @@ export class PersonService {
                 sysAdmin: true,
 
                 User: true,
-                Customer: true,
-                Producer: true
             },
         });
 
@@ -232,29 +217,6 @@ export class PersonService {
                 })
             } else {
                 const newUser = await this._userService.create(user, data);
-            }
-        }
-
-        if (data.isProducer) {
-            
-            const currentProducer = await this.prismaService.producer.findUnique({
-                where: {
-                    person_id: person.id
-                }
-            })
-
-            if(currentProducer) {
-                const updateProducer = await this.prismaService.producer.update({
-                    where: {
-                        person_id: person.id
-                    },
-                    data: {
-                        cad_pro: producer.cad_pro,
-                        ggn: producer.ggn
-                    }
-                })
-            } else {
-                const newProducer = await this._producerService.create(producer, person.id);
             }
         }
 

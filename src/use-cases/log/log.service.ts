@@ -18,14 +18,14 @@ export class LogService {
 
     async log(data: props) {
 
-        await this.prismaService.logSystem.create({
-            data: {
-                user_id: data.user_id,
-                type: data.type,
-                action: data.action,
-                before: data.before,
-                after: data.after
-            }   
-        })
+        // await this.prismaService.logSystem.create({
+        //     data: {
+        //         user_id: data.user_id,
+        //         type: data.type,
+        //         action: data.action,
+        //         before: data.before,
+        //         after: data.after
+        //     }   
+        // })
     }
 }

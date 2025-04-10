@@ -1,4 +1,3 @@
-import { ProducerService } from './../producer/producer.service';
 import { Module } from '@nestjs/common';
 import { PersonController } from './person.controller';
 import { PersonService } from './person.service';
@@ -16,7 +15,6 @@ import { BooleanHandlerService } from 'src/shared/handlers/boolean.handler';
     LogService, 
     MailService, 
     UserService,
-    ProducerService,
     BooleanHandlerService
   ]
 })

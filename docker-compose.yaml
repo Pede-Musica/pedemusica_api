@@ -3,7 +3,7 @@ version: '4'
 services:
   backend:
     build: ./
-    container_name: cooperflow_api
+    container_name: hangodash_api
     ports:
       - '3000:3000'
     networks:
