@@ -13,21 +13,15 @@ export async function userSeeder() {
         {
             person: {
                 name: 'Felipe Yuiti Sasaki',
-                email: 'felipe.sasaki95@gmail.com',
-                position: 'System Administrator',
                 phone: '43999001381',
                 phone2: '',
                 address: '',
-                type: 1,
                 cpf_cnpj: '',
-                isCostumer: false,
-                isProducer: false,
-                isUser: true,
-                sysAdmin: true
             },
             user: {
-                isActive: true,
-                password: '123456',
+                is_active: true,
+                password: 'abc123',
+                email: 'felipe.sasaki95@gmail.com',
             }
         },
     ];
@@ -36,7 +30,7 @@ export async function userSeeder() {
         for (const user of users) {
             const userExists = await tx.user.findUnique({
                 where: {
-                    user: user.person.email,
+                    email: user.user.email,
                 },
             });
 
@@ -49,26 +43,19 @@ export async function userSeeder() {
             const person = await tx.person.create({
                 data: {
                     name: user.person.name,
-                    email: user.person.email,
-                    position: user.person.position,
                     phone: user.person.phone,
                     phone2: user.person.phone2,
                     address: user.person.address,
-                    type: user.person.type,
                     cpf_cnpj: user.person.cpf_cnpj,
-                    isCustomer: user.person.isCostumer,
-                    isProducer: user.person.isProducer,
-                    isUser: user.person.isUser,
-                    sysAdmin: user.person.sysAdmin,
                 },
             });
 
             const newUser = await tx.user.create({
                 data: {
-                    isActive: true,
+                    is_active: true,
                     password: hashedPassword,
                     person_id: person.id,
-                    user: user.person.email
+                    email: user.user.email
                 }
             })
         }

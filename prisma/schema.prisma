@@ -11,40 +11,40 @@ datasource db {
 }
 
 model User {
-  id       String  @id @unique @default(uuid())
-  isActive Boolean @default(true)
-  user     String? @unique
-  password String?
+  id        String  @id @unique @default(uuid())
+  is_active Boolean @default(true)
+  email     String? @unique
+  password  String?
 
-  Person    Person? @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   person_id String? @unique
-  NewUser   NewUser?
+  Person    Person? @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sys_admin Boolean @default(false)
+  client_admin Boolean @default(false)
+  client_id String? @unique
+  Client    Client?   @relation(fields: [client_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
+
+  NewUser NewUser?
 
   @@map("users")
 }
 
 model Person {
-  id         String  @id @unique @default(uuid())
-  name       String  @db.VarChar(255)
-  email      String
-  position   String? @db.VarChar(255)
-  phone      String
-  phone2     String?
-  address    String? @db.VarChar(255)
-  type       Int     @default(1)
-  cpf_cnpj   String? @db.VarChar(255)
-  sysAdmin   Boolean @default(false)
-  isUser     Boolean @default(false)
-  isCustomer Boolean @default(false)
-  isProducer Boolean @default(false)
+  id       String  @id @unique @default(uuid())
+  name     String  @db.VarChar(255)
+  position String? @db.VarChar(255)
+  phone    String
+  phone2   String?
+  address  String? @db.VarChar(255)
+  cpf_cnpj String? @db.VarChar(255)
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
-  User     User?
+  User User?
+
   @@map("persons")
 }
 
@@ -56,4 +56,31 @@ model NewUser {
   User    User?   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@map("new_user")
+}
+
+model Client {
+  id       String  @id @unique @default(uuid())
+  name     String  @db.VarChar(255)
+  email    String  @unique
+  cpf_cnpj String  @db.VarChar(255)
+  address  String  @db.VarChar(255)
+  phone    String
+  phone2   String?
+
+  ClientConfig ClientConfig[]
+  User User[]
+
+  @@map("clients")
+}
+
+model ClientConfig {
+  client_id String @id
+  Client    Client @relation(fields: [client_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  config    String
+  value     String
+
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
+
+  @@map("client_configs")
 }

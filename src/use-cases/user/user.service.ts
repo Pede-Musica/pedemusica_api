@@ -1,4 +1,4 @@
-import {  Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/infra/database/prisma.service';
 import { AuthDTO } from './dto/auth.dto';
@@ -9,7 +9,9 @@ import { MailService } from 'src/external/mailer/mail.service';
 import { UserSetPasswordDTO } from './dto/user-set-password';
 import { ValidateToken } from './dto/validate-token.dto';
 import { PersonCreateDTO } from '../person/dto/person-create.dto';
-
+import { BooleanHandlerService } from 'src/shared/handlers/boolean.handler';
+import { UserPaginateDTO } from './dto/user-paginate.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -17,7 +19,8 @@ export class UserService {
     constructor(
         private readonly prismaService: PrismaService,
         private jwtService: JwtService,
-        private _mailService: MailService
+        private _mailService: MailService,
+        public booleanHandlerService: BooleanHandlerService
     ) { }
 
     async exists(email: string) {
@@ -35,7 +38,7 @@ export class UserService {
         const email = data.email;
 
         const user = await this.prismaService.user.findUnique({
-            where: { user:  email},
+            where: { user: email },
             select: {
                 id: true,
                 user: true,
@@ -231,6 +234,56 @@ export class UserService {
         } catch (error) {
             throw new UnauthorizedException(error.message);
         }
+    }
+
+
+    async paginate(params: UserPaginateDTO) {
+        const order: Prisma.SortOrder =
+            (params.order as unknown as Prisma.SortOrder) || 'asc';
+        const page = params.page ? +params.page : 1;
+        const perPage = params.pageSize ? +params.pageSize : 10;
+
+
+        const offset = perPage * (page - 1);
+
+        const users = await this.prismaService.user.findMany({
+            select: {
+                id: true,
+                is_active: true,
+                email: true,
+                created_at: true,
+                updated_at: true,
+                Person: true,
+            },
+            where: {
+                Person: {
+                    name: {
+                        contains: params.search,
+                        mode: 'insensitive',
+                    },
+                }
+            },
+            take: perPage,
+            skip: offset,
+            orderBy: {
+                Person: {
+                    name: order,
+                }
+            },
+        });
+
+        const total = users.length;
+
+        const totalPages = Math.ceil(total / perPage);
+
+        const response = {
+            data: users,
+            total,
+            page,
+            totalPages,
+        };
+
+        return response;
     }
 
 }

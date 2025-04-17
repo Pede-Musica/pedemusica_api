@@ -5,13 +5,14 @@ import { AuthDTO } from './dto/auth.dto';
 import { UserService } from './user.service';
 import { UserSetPasswordDTO } from './dto/user-set-password';
 import { ValidateToken } from './dto/validate-token.dto';
+import { UserPaginateDTO } from './dto/user-paginate.dto';
 
 @Controller('user')
 export class UserController {
 
     constructor(
         private readonly userService: UserService
-    ) {}
+    ) { }
 
     @Public()
     @Post('/auth')
@@ -39,6 +40,11 @@ export class UserController {
     @Get('/test')
     async testAPI() {
         return 'API is working'
+    }
+
+    @Get('/paginate')
+    async paginate(@Query() params: UserPaginateDTO) {
+        return await this.userService.paginate(params)
     }
 
 }
