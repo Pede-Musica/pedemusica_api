@@ -4,7 +4,6 @@ import { MailService } from './api/mailer/mail.service';
 import { UserModule } from './use-cases/user/user.module';
 import { AuthModule } from './use-cases/user/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
-import { PersonModule } from './use-cases/person/person.module';
 
 @Module({
   imports: [
@@ -24,7 +23,6 @@ import { PersonModule } from './use-cases/person/person.module';
       }
     }),
     UserModule,
-    PersonModule,
   ],
   controllers: [],
   providers: [MailService],

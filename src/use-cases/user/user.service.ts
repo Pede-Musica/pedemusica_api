@@ -8,7 +8,6 @@ import { UserCreateDTO } from './dto/user-create.dto';
 import { MailService } from 'src/external/mailer/mail.service';
 import { UserSetPasswordDTO } from './dto/user-set-password';
 import { ValidateToken } from './dto/validate-token.dto';
-import { PersonCreateDTO } from '../person/dto/person-create.dto';
 import { BooleanHandlerService } from 'src/shared/handlers/boolean.handler';
 import { UserPaginateDTO } from './dto/user-paginate.dto';
 import { Prisma } from '@prisma/client';
@@ -26,7 +25,7 @@ export class UserService {
     async exists(email: string) {
         const user = await this.prismaService.user.findUnique({
             where: {
-                user: email,
+                email: email,
             },
         });
 
@@ -38,12 +37,12 @@ export class UserService {
         const email = data.email;
 
         const user = await this.prismaService.user.findUnique({
-            where: { user: email },
+            where: { email: email },
             select: {
                 id: true,
-                user: true,
+                email: true,
                 person_id: true,
-                isActive: true,
+                is_active: true,
                 password: true,
                 created_at: true,
                 updated_at: true,
@@ -58,7 +57,7 @@ export class UserService {
             );
         }
 
-        if (!user.isActive) {
+        if (!user.is_active) {
             throw new UnauthorizedException(
                 'Usuário não encontrado',
             );
@@ -76,7 +75,7 @@ export class UserService {
         const payload = {
             id: user.id,
             name: user.Person.name,
-            email: user.Person.email,
+            email: user.email,
             position: user.Person.position,
         };
 
@@ -94,7 +93,7 @@ export class UserService {
             user: {
                 id: user.id,
                 name: user.Person.name,
-                email: user.Person.email,
+                email: user.email,
                 position: user.Person.position,
             },
             expires_in: today
@@ -108,13 +107,13 @@ export class UserService {
     }
 
 
-    async create(data: UserCreateDTO, person: PersonCreateDTO) {
+    async create(data: UserCreateDTO, person: any) {
 
         const user = await this.prismaService.user.create({
             data: {
-                user: data.user,
+                email: data.user,
                 person_id: person.id,
-                isActive: data.isActive,
+                is_active: data.isActive,
             },
         });
 
@@ -149,7 +148,7 @@ export class UserService {
 
         const response = {
             id: user.id,
-            user: user.user,
+            user: user.email,
             createdAt: user.created_at,
             updatedAt: user.updated_at,
         };
@@ -161,7 +160,7 @@ export class UserService {
 
         const user = await this.prismaService.user.findUnique({
             where: {
-                user: data.email
+                email: data.email
             },
         })
 
@@ -183,7 +182,7 @@ export class UserService {
 
         await this.prismaService.user.update({
             where: {
-                user: data.email,
+                email: data.email,
             },
             data: {
                 password,
