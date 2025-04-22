@@ -6,6 +6,7 @@ import { UserService } from './user.service';
 import { UserSetPasswordDTO } from './dto/user-set-password';
 import { ValidateToken } from './dto/validate-token.dto';
 import { UserPaginateDTO } from './dto/user-paginate.dto';
+import { FindUserByIdDTO } from './dto/find-user-by-id.dto';
 
 @Controller('user')
 export class UserController {
@@ -45,6 +46,16 @@ export class UserController {
     @Get('/paginate')
     async paginate(@Query() params: UserPaginateDTO) {
         return await this.userService.paginate(params)
+    }
+
+    @Post('/detail')
+    async detail(@Body() data: FindUserByIdDTO) {
+        return await this.userService.detail(data)
+    }
+
+    @Post('/create')
+    async create(@Body() data: UserCreateDTO) {
+        return await this.userService.create(data)
     }
 
 }

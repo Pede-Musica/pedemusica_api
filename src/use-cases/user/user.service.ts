@@ -11,6 +11,7 @@ import { ValidateToken } from './dto/validate-token.dto';
 import { BooleanHandlerService } from 'src/shared/handlers/boolean.handler';
 import { UserPaginateDTO } from './dto/user-paginate.dto';
 import { Prisma } from '@prisma/client';
+import { FindUserByIdDTO } from './dto/find-user-by-id.dto';
 
 @Injectable()
 export class UserService {
@@ -107,21 +108,35 @@ export class UserService {
     }
 
 
-    async create(data: UserCreateDTO, person: any) {
+    async create(data: UserCreateDTO) {
 
-        const user = await this.prismaService.user.create({
+        const person = await this.prismaService.person.create({
             data: {
-                email: data.user,
-                person_id: person.id,
-                is_active: data.isActive,
+                name: data.name,
+                position: '',
+                phone: data.phone,
+                phone2: data.phone2,
+                address: data.address,
+                cpf_cnpj: data.cpf_cnpj
             },
         });
 
+        const user = await this.prismaService.user.create({
+            data: {
+                email: data.email,
+                person_id: person.id,
+                is_active: true,
+                sys_admin: false,
+                client_admin: false,
+            },
+        });
+
+
         const payload = {
             id: user.id,
-            name: person.name,
-            email: person.email,
-            position: person.position,
+            name: data.name,
+            email: data.email,
+            position: '',
         };
 
         const token = await this.jwtService.signAsync(payload, {
@@ -137,8 +152,8 @@ export class UserService {
         });
 
         const email = {
-            to: person.email,
-            subject: 'Bem vindo ao CooperFlow',
+            to: user.email,
+            subject: 'Bem vindo ao Hangodash',
             text: `Olá ${person.name}! Este é um email para efetuar o primeiro acesso.`,
             name: person.name,
             token: token
@@ -153,7 +168,9 @@ export class UserService {
             updatedAt: user.updated_at,
         };
 
-        return response;
+        return {
+            message: 'Usuário criado com sucesso'
+        };
     }
 
     async setPassword(data: UserSetPasswordDTO) {
@@ -275,6 +292,12 @@ export class UserService {
 
         const totalPages = Math.ceil(total / perPage);
 
+        users.map((u: any) => {
+            u.name = u.Person.name,
+            u.phone = u.Person.phone,
+            delete u.Person
+        })
+
         const response = {
             data: users,
             total,
@@ -283,6 +306,24 @@ export class UserService {
         };
 
         return response;
+    }
+
+    async detail(data: FindUserByIdDTO) {
+
+        const { id } = data;
+
+        const user = this.prismaService.user.findUnique({
+            where: {
+                id: id
+            }
+        })
+
+        if(user) {
+            return user
+        } 
+        else {
+            throw new NotFoundException('Usuário não encontrado');
+        }
     }
 
 }
