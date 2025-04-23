@@ -7,6 +7,7 @@ import { UserSetPasswordDTO } from './dto/user-set-password';
 import { ValidateToken } from './dto/validate-token.dto';
 import { UserPaginateDTO } from './dto/user-paginate.dto';
 import { FindUserByIdDTO } from './dto/find-user-by-id.dto';
+import { User } from 'src/decorators/user.decorator';
 
 @Controller('user')
 export class UserController {
@@ -48,14 +49,14 @@ export class UserController {
         return await this.userService.paginate(params)
     }
 
-    @Post('/detail')
-    async detail(@Body() data: FindUserByIdDTO) {
+    @Get('/detail/:id')
+    async detail(@Param() data: FindUserByIdDTO) {
         return await this.userService.detail(data)
     }
 
     @Post('/create')
-    async create(@Body() data: UserCreateDTO) {
-        return await this.userService.create(data)
+    async create(@Body() data: UserCreateDTO, @User() user_id: string) {
+        return await this.userService.create(data, user_id)
     }
 
 }

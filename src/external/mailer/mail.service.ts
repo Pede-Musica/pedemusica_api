@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { mail } from '../../configs/env';
 import { MailerService } from '@nestjs-modules/mailer';
 import { env } from 'process';
+import { LogService } from 'src/use-cases/log/log.service';
 
 
 interface mailerProps {
@@ -16,7 +17,8 @@ interface mailerProps {
 export class MailService {
 
   constructor(
-    private readonly mailerService: MailerService
+    private readonly mailerService: MailerService,
+    private _logService: LogService
   ) { }
 
   async createAccount(data: mailerProps) {
@@ -44,21 +46,33 @@ export class MailService {
     `
 
     try {
-      const response = this.mailerService.sendMail({
+      const response = await this.mailerService.sendMail({
         to: data.to,
-        from: 'noreplycooperflow@gmail.com',
+        from: 'no-reply@hangodash.com.br',
         subject: data.subject,
         text: data.text,
         html: _html
       })
-        .then(() => {
-          return response
+        .then( async () => {
+          const log = {
+            service: 'email',
+            class: 'MailService',
+            success: true,
+            log: `E-mail de criação de acesso enviado com sucesso. Remetente: ${data.to}.`
+          }
+          await this._logService.createLogService(log)
         })
-        .catch(() => {
-          return response
+        .catch( async (error) => {
+          const log = {
+            service: 'email',
+            class: 'MailService',
+            success: false,
+            log: error
+          }
+          await this._logService.createLogService(log)
         });
     } catch (error) {
-
+      return console.log(error)
     }
 
   }

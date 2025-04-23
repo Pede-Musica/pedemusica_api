@@ -1,4 +1,4 @@
-import { IsBoolean, IsEmail, IsInt, IsNotEmpty, IsNumber, IsString } from '@nestjs/class-validator';
+import { IsBoolean, IsEmail, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString } from '@nestjs/class-validator';
 
 export class UserPaginateDTO {
 
@@ -17,4 +17,8 @@ export class UserPaginateDTO {
     @IsNotEmpty()
     @IsString()
     order: string;
+
+    @IsOptional()
+    @IsBoolean()
+    active: boolean;
 }

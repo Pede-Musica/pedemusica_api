@@ -16,17 +16,18 @@ model User {
   email     String? @unique
   password  String?
 
-  person_id String? @unique
-  Person    Person? @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  sys_admin Boolean @default(false)
+  person_id    String? @unique
+  Person       Person? @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sys_admin    Boolean @default(false)
   client_admin Boolean @default(false)
-  client_id String? @unique
-  Client    Client?   @relation(fields: [client_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  client_id    String? @unique
+  Client       Client? @relation(fields: [client_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   created_at DateTime @default(now()) @db.Timestamp
   updated_at DateTime @updatedAt @db.Timestamp
 
   NewUser NewUser?
+  LogUser LogUsers[]
 
   @@map("users")
 }
@@ -68,7 +69,7 @@ model Client {
   phone2   String?
 
   ClientConfig ClientConfig[]
-  User User[]
+  User         User[]
 
   @@map("clients")
 }
@@ -83,4 +84,32 @@ model ClientConfig {
   updated_at DateTime @updatedAt @db.Timestamp
 
   @@map("client_configs")
+}
+
+model LogServices {
+  id      Int     @id @unique @default(autoincrement())
+  service String
+  class   String?
+  success Boolean
+  log     String  @db.VarChar(255)
+
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
+
+  @@map("log_services")
+}
+
+model LogUsers {
+  id      Int     @id @unique @default(autoincrement())
+  user_id String
+  class   String?
+  success Boolean
+  log     String  @db.VarChar(255)
+
+  User User @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
+
+  @@map("log_users")
 }

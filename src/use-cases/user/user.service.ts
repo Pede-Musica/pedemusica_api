@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/infra/database/prisma.service';
 import { AuthDTO } from './dto/auth.dto';
@@ -12,6 +12,7 @@ import { BooleanHandlerService } from 'src/shared/handlers/boolean.handler';
 import { UserPaginateDTO } from './dto/user-paginate.dto';
 import { Prisma } from '@prisma/client';
 import { FindUserByIdDTO } from './dto/find-user-by-id.dto';
+import { LogService } from '../log/log.service';
 
 @Injectable()
 export class UserService {
@@ -20,7 +21,8 @@ export class UserService {
         private readonly prismaService: PrismaService,
         private jwtService: JwtService,
         private _mailService: MailService,
-        public booleanHandlerService: BooleanHandlerService
+        public booleanHandlerService: BooleanHandlerService,
+        private _logService: LogService
     ) { }
 
     async exists(email: string) {
@@ -108,7 +110,23 @@ export class UserService {
     }
 
 
-    async create(data: UserCreateDTO) {
+    async create(data: UserCreateDTO, user_id: string) {
+
+        const exist = await this.prismaService.user.findUnique({
+            where: {
+                email: data.email
+            }
+        })
+
+        if (exist) {
+            await this._logService.createLogUser({
+                user_id: user_id,
+                class: 'UserService',
+                success: false,
+                log: `Falha ao tentar criar usuário. E-mail já existe: ${data.email}`
+            })
+            throw new ConflictException(('E-mail já existe'))
+        }
 
         const person = await this.prismaService.person.create({
             data: {
@@ -159,8 +177,8 @@ export class UserService {
             token: token
         }
 
-        await this._mailService.createAccount(email);
-
+        const sendEmail = await this._mailService.createAccount(email);
+        console.log(sendEmail)
         const response = {
             id: user.id,
             user: user.email,
@@ -258,7 +276,7 @@ export class UserService {
             (params.order as unknown as Prisma.SortOrder) || 'asc';
         const page = params.page ? +params.page : 1;
         const perPage = params.pageSize ? +params.pageSize : 10;
-
+        const active = await this.booleanHandlerService.convert(params.active) ?? null;
 
         const offset = perPage * (page - 1);
 
@@ -272,6 +290,9 @@ export class UserService {
                 Person: true,
             },
             where: {
+                ...([true, false].includes(active) && {
+                    is_active: active
+                }),
                 Person: {
                     name: {
                         contains: params.search,
@@ -294,8 +315,8 @@ export class UserService {
 
         users.map((u: any) => {
             u.name = u.Person.name,
-            u.phone = u.Person.phone,
-            delete u.Person
+                u.phone = u.Person.phone,
+                delete u.Person
         })
 
         const response = {
@@ -312,15 +333,32 @@ export class UserService {
 
         const { id } = data;
 
-        const user = this.prismaService.user.findUnique({
+        const user = await this.prismaService.user.findUnique({
             where: {
                 id: id
+            },
+            select: {
+                id: true,
+                email: true,
+                Person: true,
+                is_active: true
             }
         })
 
-        if(user) {
-            return user
-        } 
+        if (user) {
+            const response = {
+                id: user.id,
+                name: user.Person.name,
+                cpf_cnpj: user.Person.cpf_cnpj,
+                email: user.email,
+                phone: user.Person.phone,
+                phone2: user.Person.phone2,
+                address: user.Person.address,
+                is_active: user.is_active
+            }
+
+            return response
+        }
         else {
             throw new NotFoundException('Usuário não encontrado');
         }
