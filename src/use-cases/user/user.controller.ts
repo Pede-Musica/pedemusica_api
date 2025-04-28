@@ -59,4 +59,10 @@ export class UserController {
         return await this.userService.create(data, user_id)
     }
 
+    @Public()
+    @Post('/forgot-password')
+    async forgotPassword(@Body() data: { email: string }) {
+        return await this.userService.forgotPassword(data)
+    }
+
 }

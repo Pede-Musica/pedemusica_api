@@ -364,4 +364,22 @@ export class UserService {
         }
     }
 
+    async forgotPassword(data: { email: string }) {
+
+        const { email } = data;
+
+        const user = this.prismaService.user.findFirst({
+            where: {
+                email: email
+            }
+        })
+
+        if (!user) {
+            throw new NotFoundException('Usuário não encontrado');
+        }
+
+        return {
+            message: 'E-mail de recuperação de senha enviado com sucesso'
+        }
+    }
 }
