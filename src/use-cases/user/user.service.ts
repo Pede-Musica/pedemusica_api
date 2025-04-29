@@ -171,7 +171,7 @@ export class UserService {
 
         const email = {
             to: user.email,
-            subject: 'Bem vindo ao Hangodash',
+            subject: 'Primeiro acesso Hangodash',
             text: `Olá ${person.name}! Este é um email para efetuar o primeiro acesso.`,
             name: person.name,
             token: token

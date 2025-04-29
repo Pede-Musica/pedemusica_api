@@ -26,23 +26,36 @@ export class MailService {
     const link = `${env.LINK_CREATE_ACCOUNT}${data.token}`
 
     const _html = `
-    <div>
-      <div style="text-align:center; padding: 20px; border-radius: 10px; margin-bottom: 20px">
-        <p style="font-weight: bold; font-size: 20px">Bem vindo ao <strong>CooperFlow</strong></p>
-        <span>Clique no link abaixo para efetuar o primeiro acesso.</span>
+    <div style="max-width: 600px; margin: 0 auto; background-color: #f9fafb; font-family: Arial, sans-serif; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+      <div style="background-color: #ff3131; padding: 30px 20px; text-align: center; color: #ffffff;">
+        <h1 style="margin: 0; font-size: 32px; font-weight: bold; color: #ffffff">Hangodash</h1>
+        <p style="margin-top: 10px; font-size: 16px; color: #ffffff">Clique no botão abaixo para efetuar o primeiro acesso</p>
       </div>
-      <div style="padding: 20px; text-align:">
-        <div>
-          <span>Nome: ${data.name}</span>
+      <div style="padding: 30px 20px; color: #374151;">
+        <p style="margin: 0 0 10px 0; font-size: 16px;"><strong>Nome:</strong> ${data.name}</p>
+        <p style="margin: 0 0 30px 0; font-size: 16px;"><strong>Usuário:</strong> ${data.to}</p>
+
+        <div style="text-align: center;">
+            <a href="${link}"
+              target="_blank"
+              style="
+                background-color: #3b82f6;
+                color: #ffffff;
+                padding: 14px 28px;
+                text-decoration: none;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: bold;
+                display: inline-block;
+              ">
+              Primeiro Acesso
+            </a>
+          </div>
         </div>
-        <div style="margin-bottom: 20px;">
-          <span>Usuário: ${data.to}</span>
-        </div>
-        <div style="margin-bottom: 20px; text-align: center">
-          <a href="${link}">Primeiro acesso</a>
+        <div style="background-color: #f3f4f6; padding: 20px; text-align: center; font-size: 12px; color: #9ca3af;">
+          © 2025 Hangodash. Todos os direitos reservados.
         </div>
       </div>
-    </div>
     `
 
     try {
@@ -51,9 +64,9 @@ export class MailService {
         from: 'no-reply@hangodash.com.br',
         subject: data.subject,
         text: data.text,
-        html: _html
+        html: _html,
       })
-        .then( async () => {
+        .then(async () => {
           const log = {
             service: 'email',
             class: 'MailService',
@@ -62,7 +75,7 @@ export class MailService {
           }
           await this._logService.createLogService(log)
         })
-        .catch( async (error) => {
+        .catch(async (error) => {
           const log = {
             service: 'email',
             class: 'MailService',
