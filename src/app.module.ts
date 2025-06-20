@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { MailService } from './api/mailer/mail.service';
-import { UserModule } from './use-cases/user/user.module';
-import { AuthModule } from './use-cases/user/auth/auth.module';
+import { UserModule } from './modules/users/user.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
-import { LogModule } from './use-cases/log/log.module';
+import { SessionModule } from './modules/sessions/session.module';
+import { ClientModule } from './modules/clients/client.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { LogModule } from './use-cases/log/log.module';
       }
     }),
     UserModule,
+    SessionModule,
+    ClientModule
   ],
   controllers: [],
   providers: [MailService],

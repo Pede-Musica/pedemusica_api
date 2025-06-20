@@ -6,8 +6,8 @@ export class MailService {
 
     constructor(
         private readonly mailerService: MailerService
-    ) {}
-    
+    ) { }
+
     sendMail(): any {
 
         const mail_body = ``;
