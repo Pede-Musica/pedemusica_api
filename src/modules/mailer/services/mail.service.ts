@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { env } from 'process';
 import { LogService } from 'src/modules/logs/services/log.service';
+import { mail } from 'src/common/configs/env';
 
 
 interface mailerProps {
@@ -22,7 +23,7 @@ export class MailService {
 
   async createAccount(data: mailerProps) {
 
-    const link = `${env.LINK_CREATE_ACCOUNT}${data.token}`
+    const link = `${mail.template.create_account.link}${data.token}`
 
     const _html = `
     <div style="max-width: 600px; margin: 0 auto; background-color: #f9fafb; font-family: Arial, sans-serif; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">

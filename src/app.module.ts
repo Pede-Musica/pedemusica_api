@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { MailService } from './api/mailer/mail.service';
 import { UserModule } from './modules/users/user.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { SessionModule } from './modules/sessions/session.module';
 import { ClientModule } from './modules/clients/client.module';
 import { ConfigModule } from '@nestjs/config';
+import { WhatsAppModule } from './modules/whatsapp/whatsapp.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './modules/auth/guards/auth.guard';
 
 @Module({
   imports: [
@@ -27,9 +29,16 @@ import { ConfigModule } from '@nestjs/config';
     }),
     UserModule,
     SessionModule,
-    ClientModule
+    ClientModule,
+    WhatsAppModule,
   ],
   controllers: [],
-  providers: [MailService],
+  providers: [
+    JwtService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
 })
 export class AppModule { }

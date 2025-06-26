@@ -11,10 +11,11 @@ import { PersonService } from '../persons/services/person.service';
 import { PersonRepository } from '../persons/repositories/person.repository';
 import { NewUserService } from '../new-users/services/new-user.service';
 import { NewUserRepository } from '../new-users/repositories/new-user.repository';
+import { WhatsAppService } from '../whatsapp/services/whatsapp.service';
 
 @Module({
   controllers: [UserController],
-  providers: [NewUserRepository, PersonRepository, ClientRepository, UserService, PrismaService, MailService, LogService, UserRepository, ClientService, PersonService, NewUserService]
+  providers: [NewUserRepository, WhatsAppService, PersonRepository, ClientRepository, UserService, PrismaService, MailService, LogService, UserRepository, ClientService, PersonService, NewUserService]
 
 })
 export class UserModule { }

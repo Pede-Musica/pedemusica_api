@@ -9,12 +9,23 @@ import { FindUserByIdDTO } from '../dto/find-user-by-id.dto';
 import { Public } from 'src/common/decorators/auth-guard.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { GetClientId } from 'src/common/decorators/get-client-id.decorator';
+import { WhatsAppService } from 'src/modules/whatsapp/services/whatsapp.service';
 
 @Controller('user')
 export class UserController {
     constructor(
-        private readonly userService: UserService
+        private readonly userService: UserService,
+        private readonly whatsappService: WhatsAppService
     ) { }
+
+    @Public()
+    @Get('teste')
+    async teste() {
+        return await this.whatsappService.sendMessage({
+            to: 'whatsapp:+5519997119007',
+            message: 'Olá, esta é uma mensagem de teste do Hangodash!'
+        });
+    }
 
     @Public()
     @Post('/auth')
@@ -32,12 +43,6 @@ export class UserController {
     @Get('/validate-password/:token')
     async validatePassword(@Param() data: ValidateToken) {
         return await this.userService.validateToken(data)
-    }
-
-    @Public()
-    @Get('/test')
-    async testAPI() {
-        return 'API is working'
     }
 
     @Get('/paginate')

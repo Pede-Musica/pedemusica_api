@@ -2,6 +2,14 @@ import { config } from 'dotenv';
 
 config({ path: process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : '.env' });
 
+export const twilio = {
+    auth: {
+        accountSid: process.env.TWILIO_ACCOUNT_SID,
+        authToken: process.env.TWILIO_AUTH_TOKEN,
+        whatsappNumber: process.env.TWILIO_WHATSAPP_NUMBER,
+    }
+}
+
 export const jwt = {
     auth: {
         secret: process.env.SECRET_AUTH,
