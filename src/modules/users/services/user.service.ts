@@ -9,7 +9,6 @@ import { ValidateToken } from '../dto/validate-token.dto';
 import { UserPaginateDTO } from '../dto/user-paginate.dto';
 import { Prisma, User } from '@prisma/client';
 import { FindUserByIdDTO } from '../dto/find-user-by-id.dto';
-import { LogService } from '../../logs/services/log.service';
 import { MailService } from '../../mailer/services/mail.service';
 import { ClientService } from 'src/modules/clients/services/client.service';
 import { PersonService } from 'src/modules/persons/services/person.service';
@@ -21,7 +20,6 @@ export class UserService {
     constructor(
         private jwtService: JwtService,
         private _mailService: MailService,
-        private _logService: LogService,
         private readonly userRepository: UserRepository,
         private readonly clienteService: ClientService,
         private readonly personService: PersonService,
@@ -99,13 +97,13 @@ export class UserService {
         const exist = await this.findByEmail(data.email);
 
         if (exist) {
-            await this._logService.createLogUser({
-                user_id: user_id,
-                class: 'UserService',
-                success: false,
-                log: `Falha ao tentar criar usuário. E-mail já existe: ${data.email}`
-            })
-            throw new ConflictException(('E-mail já existe'))
+            // await this._logService.createLogUser({
+            //     user_id: user_id,
+            //     class: 'UserService',
+            //     success: false,
+            //     log: `Falha ao tentar criar usuário. E-mail já existe: ${data.email}`
+            // })
+            // throw new ConflictException(('E-mail já existe'))
         }
 
         const personData = {

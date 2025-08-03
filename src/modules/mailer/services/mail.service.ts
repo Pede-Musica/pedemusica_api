@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { env } from 'process';
-import { LogService } from 'src/modules/logs/services/log.service';
 import { mail } from 'src/common/configs/env';
 
 
@@ -18,7 +17,6 @@ export class MailService {
 
   constructor(
     private readonly mailerService: MailerService,
-    private _logService: LogService
   ) { }
 
   async createAccount(data: mailerProps) {
@@ -73,7 +71,7 @@ export class MailService {
             success: true,
             log: `E-mail de criação de acesso enviado com sucesso. Remetente: ${data.to}.`
           }
-          await this._logService.createLogService(log)
+          // await this._logService.createLogService(log)
         })
         .catch(async (error) => {
           const log = {
@@ -82,7 +80,7 @@ export class MailService {
             success: false,
             log: error
           }
-          await this._logService.createLogService(log)
+          // await this._logService.createLogService(log)
         });
     } catch (error) {
       return console.log(error)

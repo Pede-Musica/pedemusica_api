@@ -62,6 +62,7 @@ model NewUser {
 
 model Client {
   id       String  @id @unique @default(uuid())
+  slug     String  @unique
   name     String  @db.VarChar(255)
   email    String  @unique
   cpf_cnpj String  @db.VarChar(255)
@@ -72,6 +73,7 @@ model Client {
 
   client_config ClientConfig[]
   user          User[]
+  request       Requests[]
 
   @@map("clients")
 }
@@ -114,4 +116,20 @@ model LogUsers {
   updated_at DateTime @updatedAt @db.Timestamp
 
   @@map("log_users")
+}
+
+model Requests {
+  id        Int     @id @unique @default(autoincrement())
+  user_name String?
+  table     String?
+  song_name String  @db.VarChar(255)
+  favorite  Boolean @default(false)
+
+  client_id String
+  client    Client @relation(fields: [client_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  created_at DateTime @default(now()) @db.Timestamp
+  updated_at DateTime @updatedAt @db.Timestamp
+
+  @@map("requests")
 }

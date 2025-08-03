@@ -26,18 +26,19 @@ export async function userSeeder() {
         },
         {
             person: {
-                name: 'Bruno de Oliveira Mello',
-                phone: '19997119007',
+                name: 'Nosso Quintal',
+                phone: '31994253602',
                 phone2: '',
                 address: '',
                 cpf_cnpj: '',
             },
             user: {
                 is_active: true,
-                password: 'abc123',
-                email: 'brunomello.ti@gmail.com',
+                password: 'Nossoquintal2025',
+                email: 'nossoquintaljm@gmail.com',
             }
         },
+        
     ];
 
     await prisma.$transaction(async (tx) => {

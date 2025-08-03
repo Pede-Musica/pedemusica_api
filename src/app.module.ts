@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { WhatsAppModule } from './modules/whatsapp/whatsapp.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './modules/auth/guards/auth.guard';
+import { RequestModule } from './modules/request/request.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { AuthGuard } from './modules/auth/guards/auth.guard';
     SessionModule,
     ClientModule,
     WhatsAppModule,
+    RequestModule,
   ],
   controllers: [],
   providers: [

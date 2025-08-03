@@ -2,6 +2,7 @@
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "name" VARCHAR(255) NOT NULL,
     "email" TEXT,
     "password" TEXT,
     "person_id" TEXT,
@@ -47,6 +48,7 @@ CREATE TABLE "clients" (
     "address" VARCHAR(255) NOT NULL,
     "phone" TEXT NOT NULL,
     "phone2" TEXT,
+    "logo" TEXT,
 
     CONSTRAINT "clients_pkey" PRIMARY KEY ("id")
 );
@@ -62,6 +64,46 @@ CREATE TABLE "client_configs" (
     CONSTRAINT "client_configs_pkey" PRIMARY KEY ("client_id")
 );
 
+-- CreateTable
+CREATE TABLE "log_services" (
+    "id" SERIAL NOT NULL,
+    "service" TEXT NOT NULL,
+    "class" TEXT,
+    "success" BOOLEAN NOT NULL,
+    "log" VARCHAR(255) NOT NULL,
+    "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP NOT NULL,
+
+    CONSTRAINT "log_services_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "log_users" (
+    "id" SERIAL NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "class" TEXT,
+    "success" BOOLEAN NOT NULL,
+    "log" VARCHAR(255) NOT NULL,
+    "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP NOT NULL,
+
+    CONSTRAINT "log_users_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "requests" (
+    "id" SERIAL NOT NULL,
+    "user_name" TEXT,
+    "table" TEXT,
+    "song_name" VARCHAR(255) NOT NULL,
+    "favorite" BOOLEAN NOT NULL DEFAULT false,
+    "client_id" TEXT NOT NULL,
+    "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP NOT NULL,
+
+    CONSTRAINT "requests_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "users_id_key" ON "users"("id");
 
@@ -70,9 +112,6 @@ CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_person_id_key" ON "users"("person_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "users_client_id_key" ON "users"("client_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "persons_id_key" ON "persons"("id");
@@ -92,6 +131,15 @@ CREATE UNIQUE INDEX "clients_id_key" ON "clients"("id");
 -- CreateIndex
 CREATE UNIQUE INDEX "clients_email_key" ON "clients"("email");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "log_services_id_key" ON "log_services"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "log_users_id_key" ON "log_users"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "requests_id_key" ON "requests"("id");
+
 -- AddForeignKey
 ALTER TABLE "users" ADD CONSTRAINT "users_person_id_fkey" FOREIGN KEY ("person_id") REFERENCES "persons"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -103,3 +151,9 @@ ALTER TABLE "new_user" ADD CONSTRAINT "new_user_user_id_fkey" FOREIGN KEY ("user
 
 -- AddForeignKey
 ALTER TABLE "client_configs" ADD CONSTRAINT "client_configs_client_id_fkey" FOREIGN KEY ("client_id") REFERENCES "clients"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "log_users" ADD CONSTRAINT "log_users_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "requests" ADD CONSTRAINT "requests_client_id_fkey" FOREIGN KEY ("client_id") REFERENCES "clients"("id") ON DELETE CASCADE ON UPDATE CASCADE;
