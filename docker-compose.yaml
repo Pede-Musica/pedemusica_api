@@ -3,9 +3,9 @@ version: '4'
 services:
   backend:
     build: ./
-    container_name: hangodash_api
+    container_name: pedemusica_api
     ports:
-      - '3000:3000'
+      - '3050:3050'
     networks:
       - nestjs_network
 

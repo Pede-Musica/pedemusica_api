@@ -13,6 +13,6 @@ RUN npx prisma migrate deploy
 RUN npm run seeder
 
 RUN npm run build
-EXPOSE 3000
+EXPOSE 3050
 
 CMD [ "node", "dist/main.js" ]
