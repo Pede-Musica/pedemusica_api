@@ -38,17 +38,25 @@ export class RequestService {
     }
 
     async paginate(data: RequestPaginateDTO) {
+        const filter = data?.filter ?? 'today';
+        const favorite = data?.favorite ?? null;
+
+        const where: any = {};
+
+        if (favorite === 'true') {
+            where.favorite = true;
+        }
+
+        if (filter === 'today') {
+            const date = new Date();
+            date.setHours(date.getHours() - 12);
+            where.created_at = {
+                gte: date
+            };
+        }
 
         const requests = await this.prismaService.requests.findMany({
-            orderBy: {
-                created_at: 'desc'
-            }
-        });
-
-        const favorites = await this.prismaService.requests.findMany({
-            where: {
-                favorite: true
-            },
+            where,
             orderBy: {
                 created_at: 'desc'
             }
@@ -56,7 +64,6 @@ export class RequestService {
 
         return {
             requests: requests,
-            favorites: favorites
         };
     }
 

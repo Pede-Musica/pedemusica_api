@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Get, Param } from '@nestjs/common';
+import { Body, Controller, Post, Get, Param, Query } from '@nestjs/common';
 import { Public } from 'src/common/decorators/auth-guard.decorator';
 import { RequestCreateDTO } from './dto/request-create.dto';
 import { RequestService } from './request.service';
@@ -19,7 +19,7 @@ export class RequestController {
     }
 
     @Get('/paginate')
-    async paginate(@Param() data: RequestPaginateDTO) {
+    async paginate(@Query() data: RequestPaginateDTO) {
         return await this.requestService.paginate(data)
     }
 
