@@ -124,6 +124,7 @@ model Requests {
   table     String?
   song_name String  @db.VarChar(255)
   favorite  Boolean @default(false)
+  done  Boolean @default(false)
 
   client_id String
   client    Client @relation(fields: [client_id], references: [id], onDelete: Cascade, onUpdate: Cascade)

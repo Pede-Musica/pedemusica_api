@@ -67,19 +67,83 @@ export class RequestService {
         };
     }
 
-    async updateFavorite(data: RequestUpdateFavoriteDTO) {
+    async update(data: RequestUpdateFavoriteDTO) {
+
+        const changeType = data.change ?? ''
 
         try {
-            const request = await this.prismaService.requests.update({
-                where: {
-                    id: Number(data.id)
-                },
-                data: {
-                    favorite: data.favorite
-                }
-            })
 
-            return request
+            switch (changeType) {
+                case 'favorite': {
+                    const response = await this.prismaService.requests.update({
+                        where: {
+                            id: Number(data.id)
+                        },
+                        data: {
+                            favorite: true
+                        }
+                    })
+
+                    if (response) {
+                        return {
+                            message: 'Pedido favoritado com sucesso'
+                        }
+                    }
+
+                }
+
+                case 'unfavorite': {
+                    const response = await this.prismaService.requests.update({
+                        where: {
+                            id: Number(data.id)
+                        },
+                        data: {
+                            favorite: false
+                        }
+                    })
+
+                    if (response) {
+                        return {
+                            message: 'Pedido removido da lista de favoritos'
+                        }
+                    }
+                }
+
+                case 'done': {
+                    const response = await this.prismaService.requests.update({
+                        where: {
+                            id: Number(data.id)
+                        },
+                        data: {
+                            done: true
+                        }
+                    })
+                    if (response) {
+                        return {
+                            message: 'Pedido marcado como "tocado"'
+                        }
+                    }
+                }
+
+                case 'undone': {
+                    const response = await this.prismaService.requests.update({
+                        where: {
+                            id: Number(data.id)
+                        },
+                        data: {
+                            done: false
+                        }
+                    })
+                    if (response) {
+                        return {
+                            message: 'Pedido marcado como "Não tocado"'
+                        }
+                    }
+                }
+            }
+
+            throw new BadRequestException('Falha ao atualizar pedido')
+
         }
         catch (err) {
             throw new BadRequestException('Falha ao atualizar pedido', err)

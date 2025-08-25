@@ -6,7 +6,7 @@ export class RequestUpdateFavoriteDTO {
     @IsNumber()
     id: any;
 
-    @IsBoolean()
-    favorite: boolean;
+    @IsString()
+    change: string;
     
 }

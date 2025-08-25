@@ -23,8 +23,8 @@ export class RequestController {
         return await this.requestService.paginate(data)
     }
 
-    @Post('/favorite')
-    async updateFavorite(@Body() data: RequestUpdateFavoriteDTO) {
-        return await this.requestService.updateFavorite(data)
+    @Post('/update')
+    async update(@Body() data: RequestUpdateFavoriteDTO) {
+        return await this.requestService.update(data)
     }
 }
