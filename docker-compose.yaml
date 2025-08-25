@@ -5,7 +5,7 @@ services:
     build: ./
     container_name: pedemusica_api
     ports:
-      - '3050:3050'
+      - '3100:3100'
     networks:
       - nestjs_network
 
